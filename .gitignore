@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Frontend build output
+dist/
+build/
+coverage/
+
+# Tauri / Rust build output
+target/
+selector-desktop/src-tauri/target/
+
+# Local environment
+.env
+.env.*
+!.env.example
+
+# Local app data and generated files
+*.db
+*.sqlite
+*.sqlite3
+*.log
+reports/
+exports/
+.codex/tmp-pydeps/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
