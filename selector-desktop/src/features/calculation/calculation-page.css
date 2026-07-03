@@ -1,0 +1,207 @@
+.calculation-page {
+  display: grid;
+  gap: var(--space-lg);
+}
+
+.calculation-page__header,
+.module-list__header,
+.result-panel header,
+.save-case-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+
+.calculation-status {
+  padding: var(--space-xs) var(--space-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+  background: var(--color-surface);
+  font-size: var(--text-caption);
+}
+
+.calculation-workbench {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: var(--space-lg);
+}
+
+.module-list,
+.calculation-form,
+.result-panel {
+  display: grid;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.module-list h2,
+.calculation-form h2,
+.result-panel h2,
+.formula-steps h3,
+.calculation-form p,
+.result-panel p {
+  margin: 0;
+}
+
+.module-list__header input,
+.save-case-bar input {
+  min-width: 0;
+  height: 32px;
+  padding: 0 var(--space-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.module-list__items,
+.field-grid,
+.formula-steps,
+.risk-list {
+  display: grid;
+  gap: var(--space-sm);
+}
+
+.module-card {
+  display: grid;
+  gap: var(--space-2xs);
+  padding: var(--space-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-primary);
+  background: var(--color-background);
+  text-align: left;
+}
+
+.module-card--active {
+  border-color: var(--color-primary);
+  background: var(--color-primary-weak);
+}
+
+.module-card span,
+.module-card small,
+.unit-field small,
+.unit-field em,
+.calculation-form__warning,
+.result-panel header p,
+.save-case-bar span {
+  color: var(--color-text-secondary);
+  font-size: var(--text-caption);
+}
+
+.field-grid {
+  grid-template-columns: repeat(2, minmax(180px, 1fr));
+}
+
+.unit-field {
+  display: grid;
+  gap: var(--space-xs);
+}
+
+.unit-field > span {
+  display: grid;
+  gap: var(--space-2xs);
+  font-weight: 600;
+}
+
+.unit-field > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 72px;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.unit-field input,
+.unit-field select {
+  min-width: 0;
+  height: 34px;
+  padding: 0 var(--space-sm);
+  border: 0;
+}
+
+.unit-field select {
+  border-left: 1px solid var(--color-border);
+  background: var(--color-surface-subtle);
+}
+
+.unit-field strong {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-left: 1px solid var(--color-border);
+  background: var(--color-surface-subtle);
+}
+
+.unit-field b {
+  color: var(--color-danger);
+  font-size: var(--text-caption);
+}
+
+.confirm-line {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  color: var(--color-text-secondary);
+  font-size: var(--text-caption);
+}
+
+.requirement-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(120px, 1fr));
+  gap: var(--space-sm);
+}
+
+.requirement-grid div,
+.formula-steps article,
+.risk-item,
+.rule-item,
+.source-list {
+  display: grid;
+  gap: var(--space-xs);
+  padding: var(--space-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-background);
+}
+
+.result-panel__split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: var(--space-md);
+}
+
+.formula-steps code,
+.formula-steps span,
+.rule-item span,
+.rule-item small {
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+}
+
+.rule-item--warning {
+  border-color: #f1d39a;
+  background: #fff7e6;
+}
+
+.rule-item--low {
+  border-color: #b7dfcc;
+  background: #e8f5ef;
+}
+
+.risk-item--warning {
+  border-color: #f1d39a;
+  background: #fff7e6;
+}
+
+.risk-item--success {
+  border-color: #b7dfcc;
+  background: #e8f5ef;
+}
+
+.save-case-bar {
+  justify-content: flex-start;
+}

@@ -2,7 +2,7 @@ import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { invoke } from "@tauri-apps/api/core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { COVERAGE_ITEMS } from "../domain/coverage";
+import { setupAppInvokeMock } from "./app-test-fixtures";
 import { App } from "./App";
 
 vi.mock("@tauri-apps/api/core", () => ({
@@ -11,120 +11,10 @@ vi.mock("@tauri-apps/api/core", () => ({
 
 const invokeMock = vi.mocked(invoke);
 
-const okHealth = {
-  status: "ok",
-  databasePath: "test-selector.db",
-  appliedMigrations: 1,
-  tableCount: 18,
-  message: "数据库可用",
-};
-
-const coverageRecords = COVERAGE_ITEMS.map((item, index) => ({
-  id: item.id,
-  chapter: item.chapter,
-  implementationShape: item.shape,
-  status: "partial",
-  sourcePageRange: `P${index + 1}`,
-  catalogPage: `P${index + 1}`,
-  catalogExcerpt: `${item.chapter} PDF 目录摘录`,
-  knowledgeEntryCount: 2,
-  notes: item.requirement,
-}));
-
-const ingestSummary = {
-  pdfPath: "root-note.pdf",
-  pageCount: 120,
-  catalogCount: 23,
-  coverageCount: 23,
-  knowledgeEntryCount: 46,
-  parameterCandidateCount: 3,
-};
-
-function getMockArg(args: unknown, key: string): string {
-  if (typeof args !== "object" || args === null || Array.isArray(args)) {
-    return "";
-  }
-
-  const value = (args as Record<string, unknown>)[key];
-  return typeof value === "string" ? value : "";
-}
-
 describe("App desktop shell", () => {
-  let hasKnowledgeIndex = false;
-  let candidateStatus: "pending" | "confirmed" | "ignored" = "pending";
-
   beforeEach(() => {
     vi.clearAllMocks();
-    hasKnowledgeIndex = false;
-    candidateStatus = "pending";
-    invokeMock.mockImplementation((command, args) => {
-      if (command === "get_database_health") {
-        return Promise.resolve(okHealth);
-      }
-      if (command === "get_pdf_coverage_items") {
-        return Promise.resolve(coverageRecords);
-      }
-      if (command === "ingest_root_pdf_note") {
-        hasKnowledgeIndex = true;
-        return Promise.resolve(ingestSummary);
-      }
-      if (command === "list_recent_knowledge_entries") {
-        return Promise.resolve(
-          hasKnowledgeIndex
-            ? [
-                {
-                  id: "chapter-motor-p3",
-                  title: "电机篇 / 来源 P3",
-                  content: "电机篇 PDF 目录摘录",
-                  page: "P3",
-                  tags: ["PDF章节", "电机篇"],
-                  sourceTitle: "根目录非标笔记 PDF",
-                },
-              ]
-            : [],
-        );
-      }
-      if (command === "search_knowledge_entries") {
-        const query = getMockArg(args, "query");
-        const page = query === "摩擦系数" ? "P24" : query === "负载率" ? "P64" : "P8";
-        return Promise.resolve([
-          {
-            id: `keyword-${query}`,
-            title: `${query} / 来源 ${page}`,
-            content: `${query} 对应 PDF 片段。`,
-            page,
-            tags: ["PDF知识检索", query],
-            sourceTitle: "根目录非标笔记 PDF",
-          },
-        ]);
-      }
-      if (command === "list_parameter_candidates") {
-        return Promise.resolve([
-          {
-            id: "root-pdf-摩擦系数",
-            name: "摩擦系数",
-            value: "0.1",
-            unit: null,
-            scenario: "同步带摩擦系数候选，需要人工确认。",
-            sourcePage: "P24",
-            status: candidateStatus,
-          },
-        ]);
-      }
-      if (command === "update_parameter_candidate_status") {
-        candidateStatus = getMockArg(args, "status") as "confirmed" | "ignored";
-        return Promise.resolve({
-          id: getMockArg(args, "id"),
-          name: "摩擦系数",
-          value: "0.1",
-          unit: null,
-          scenario: "同步带摩擦系数候选，需要人工确认。",
-          sourcePage: "P24",
-          status: candidateStatus,
-        });
-      }
-      return Promise.resolve(null);
-    });
+    setupAppInvokeMock(invokeMock);
   });
 
   it("renders 23 PDF chapter entries and filters the matrix from global search", async () => {
@@ -199,6 +89,128 @@ describe("App desktop shell", () => {
 
     expect(await screen.findByRole("alert")).toHaveTextContent("数据库检查失败");
     expect(screen.getByText(/浏览器预览模式/)).toBeInTheDocument();
+  });
+
+  it("runs a calculation only after safety factor confirmation and saves the case", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await screen.findByText("本地数据正常");
+
+    await user.click(screen.getByRole("button", { name: /选型计算/ }));
+    expect(await screen.findByRole("heading", { name: "同步带基础计算" })).toBeInTheDocument();
+
+    await user.type(screen.getByLabelText("搜索计算模块"), "气");
+    expect(screen.getByText("气缸")).toBeInTheDocument();
+    expect(screen.getByText("真空吸附")).toBeInTheDocument();
+    expect(screen.getByText("电磁阀")).toBeInTheDocument();
+    await user.clear(screen.getByLabelText("搜索计算模块"));
+
+    await user.clear(screen.getByLabelText("摩擦系数"));
+    await user.click(screen.getByRole("button", { name: "计算" }));
+    expect(screen.getAllByText(/摩擦系数不能为空/).length).toBeGreaterThan(0);
+    expect(screen.getByLabelText("摩擦系数")).toHaveFocus();
+    await user.type(screen.getByLabelText("摩擦系数"), "0.1");
+
+    await user.clear(screen.getByLabelText("目标速度"));
+    await user.type(screen.getByLabelText("目标速度"), "0.5");
+    await user.selectOptions(screen.getByLabelText("目标速度单位"), "m/s");
+
+    await user.click(screen.getByRole("button", { name: "计算" }));
+    expect(screen.getAllByText(/安全系数未确认/).length).toBeGreaterThan(0);
+    expect(screen.getByLabelText("安全系数")).toHaveFocus();
+
+    await user.click(screen.getByLabelText("我已确认安全系数"));
+    await user.click(screen.getByRole("button", { name: "计算" }));
+
+    expect(await screen.findByText("摩擦力")).toBeInTheDocument();
+    expect(screen.getByText("速度区间")).toBeInTheDocument();
+    expect(screen.getAllByText("根目录 PDF / 同步带匹配页").length).toBeGreaterThan(0);
+    expect(screen.getByText(/输出扭矩 0.221 Nm/)).toBeInTheDocument();
+    expect(invokeMock).toHaveBeenCalledWith(
+      "run_calculation",
+      expect.objectContaining({
+        request: expect.objectContaining({
+          fields: expect.arrayContaining([
+            expect.objectContaining({ id: "targetSpeed", unit: "m/s" }),
+          ]),
+        }),
+      }),
+    );
+
+    await user.click(screen.getByRole("button", { name: "保存案例" }));
+    expect(await screen.findByText("案例已保存")).toBeInTheDocument();
+    expect(invokeMock).toHaveBeenCalledWith(
+      "save_calculation_case",
+      expect.objectContaining({
+        payload: expect.objectContaining({ name: "同步带计算案例" }),
+      }),
+    );
+  });
+
+  it("copies reruns and deletes a saved calculation case", async () => {
+    const user = userEvent.setup();
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    render(<App />);
+    await screen.findByText("本地数据正常");
+
+    await user.click(screen.getByRole("button", { name: /案例库/ }));
+    const table = await screen.findByRole("table", { name: "案例列表" });
+    expect(within(table).getByText("同步带测试")).toBeInTheDocument();
+
+    await user.selectOptions(screen.getByLabelText("模块筛选"), "timing-belt-basic");
+    await user.type(screen.getByLabelText("开始日期"), "2026-07-03");
+    await user.type(screen.getByLabelText("结束日期"), "2026-07-03");
+    await user.click(screen.getByRole("button", { name: "搜索" }));
+    expect(invokeMock).toHaveBeenCalledWith(
+      "list_calculation_cases",
+      expect.objectContaining({
+        filter: expect.objectContaining({ moduleId: "timing-belt-basic" }),
+      }),
+    );
+
+    await user.clear(screen.getByLabelText("详情案例名称"));
+    await user.type(screen.getByLabelText("详情案例名称"), "同步带更新");
+    await user.type(screen.getByLabelText("详情备注"), "复核后保存");
+    await user.click(screen.getByRole("button", { name: "保存修改" }));
+    expect(await screen.findByText("案例已更新")).toBeInTheDocument();
+    expect(invokeMock).toHaveBeenCalledWith(
+      "update_calculation_case",
+      expect.objectContaining({
+        payload: expect.objectContaining({ id: "case-1", name: "同步带更新" }),
+      }),
+    );
+
+    await user.click(within(table).getAllByRole("button", { name: "重算" })[0]);
+    expect(await screen.findByText(/已重新计算/)).toBeInTheDocument();
+
+    await user.click(within(table).getByRole("button", { name: "复制" }));
+    expect(await screen.findByRole("heading", { name: "同步带基础计算" })).toBeInTheDocument();
+    expect(await screen.findByText(/正在修改：同步带更新 - 副本/)).toBeInTheDocument();
+
+    await user.clear(screen.getByLabelText("目标速度"));
+    await user.type(screen.getByLabelText("目标速度"), "0.4");
+    await user.selectOptions(screen.getByLabelText("目标速度单位"), "m/s");
+    await user.click(screen.getByRole("button", { name: "计算" }));
+    expect(await screen.findByText("摩擦力")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "保存案例" }));
+    expect(await screen.findByText("当前案例已更新")).toBeInTheDocument();
+    expect(invokeMock).toHaveBeenCalledWith(
+      "rerun_calculation_case_with_request",
+      expect.objectContaining({
+        id: "case-copy",
+        request: expect.objectContaining({
+          fields: expect.arrayContaining([
+            expect.objectContaining({ id: "targetSpeed", value: 0.4, unit: "m/s" }),
+          ]),
+        }),
+      }),
+    );
+
+    await user.click(screen.getByRole("button", { name: /案例库/ }));
+    const refreshedTable = await screen.findByRole("table", { name: "案例列表" });
+    await user.click(within(refreshedTable).getAllByRole("button", { name: "删除" })[0]);
+    expect(invokeMock).toHaveBeenCalledWith("delete_calculation_case", { id: "case-copy" });
   });
 
   it("disables PDF knowledge search until indexing and searches all acceptance keywords", async () => {

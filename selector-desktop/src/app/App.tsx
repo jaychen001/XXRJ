@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
+import type { CalculationCaseDraft, CaseDetailRecord } from "../domain/calculation";
 import { COVERAGE_ITEMS, type CoverageItem } from "../domain/coverage";
 import { mapCoverageRecord, type RootPdfIngestSummary } from "../domain/knowledge";
+import { CalculationPage } from "../features/calculation/CalculationPage";
+import { CaseLibraryPage } from "../features/cases/CaseLibraryPage";
 import { CoverageMatrixPage } from "../features/coverage/CoverageMatrixPage";
 import { KnowledgeSearchPage } from "../features/knowledge/KnowledgeSearchPage";
 import { ParameterCandidatePage } from "../features/parameters/ParameterCandidatePage";
@@ -20,6 +23,7 @@ export function App() {
   const [ingestSummary, setIngestSummary] = useState<RootPdfIngestSummary | null>(null);
   const [health, setHealth] = useState<DatabaseHealth | null>(null);
   const [isHealthLoading, setIsHealthLoading] = useState(true);
+  const [calculationDraft, setCalculationDraft] = useState<CalculationCaseDraft | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -80,6 +84,16 @@ export function App() {
     return summary;
   }
 
+  function handleOpenCaseForCalculation(detail: CaseDetailRecord) {
+    setCalculationDraft({
+      caseId: detail.caseRecord.id,
+      name: detail.caseRecord.name,
+      notes: detail.caseRecord.notes,
+      request: detail.request,
+    });
+    setActiveRoute("calculation");
+  }
+
   return (
     <div className="app-root">
       <AppShell
@@ -116,6 +130,10 @@ export function App() {
             ingestSummary={ingestSummary}
             onIngestRootPdf={handleIngestRootPdf}
           />
+        ) : activeRoute === "calculation" ? (
+          <CalculationPage draft={calculationDraft} />
+        ) : activeRoute === "cases" ? (
+          <CaseLibraryPage onOpenCaseForCalculation={handleOpenCaseForCalculation} />
         ) : (
           <PlaceholderPage routeId={activeRoute} />
         )}

@@ -1,4 +1,6 @@
+mod cases;
 mod db;
+mod engine;
 mod knowledge;
 mod pdf;
 
@@ -11,7 +13,17 @@ fn main() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            cases::delete_calculation_case,
+            cases::duplicate_calculation_case,
+            cases::get_calculation_case_detail,
+            cases::list_calculation_cases,
+            cases::rerun_calculation_case,
+            cases::rerun_calculation_case_with_request,
+            cases::save_calculation_case,
+            cases::update_calculation_case,
             db::get_database_health,
+            engine::list_calculation_modules,
+            engine::run_calculation,
             pdf::root_note_ingest::get_pdf_coverage_items,
             pdf::root_note_ingest::ingest_root_pdf_note,
             pdf::root_note_ingest::list_parameter_candidates,
