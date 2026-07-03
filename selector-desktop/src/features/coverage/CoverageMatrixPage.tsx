@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useRef } from "react";
-import { ArrowRight, RefreshCw } from "lucide-react";
-import { COVERAGE_ITEMS, type CoverageStatus } from "../../domain/coverage";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ArrowRight, DatabaseZap } from "lucide-react";
+import type { CoverageItem, CoverageStatus } from "../../domain/coverage";
 import { RiskBadge, type RiskTone } from "../../shared/ui/RiskBadge";
 import "./coverage-matrix-page.css";
 
@@ -19,41 +19,54 @@ const STATUS_TONES = {
 } satisfies Record<CoverageStatus, RiskTone>;
 
 interface CoverageMatrixPageProps {
+  items: CoverageItem[];
   searchQuery: string;
   selectedItemId: string;
   lastRefreshedAt: Date;
   onOpenItem: (itemId: string) => void;
-  onRefresh: () => void;
+  onIngestRootPdf: () => Promise<unknown>;
 }
 
 export function CoverageMatrixPage({
+  items,
   searchQuery,
   selectedItemId,
   lastRefreshedAt,
   onOpenItem,
-  onRefresh,
+  onIngestRootPdf,
 }: CoverageMatrixPageProps) {
   const rowRefs = useRef(new Map<string, HTMLTableRowElement>());
-  const total = COVERAGE_ITEMS.length;
-  const completed = COVERAGE_ITEMS.filter((item) => item.status === "done").length;
+  const [isIngesting, setIsIngesting] = useState(false);
+  const total = items.length;
+  const completed = items.filter((item) => item.status === "done").length;
   const filteredItems = useMemo(() => {
     const normalizedQuery = searchQuery.trim().toLowerCase();
     if (!normalizedQuery) {
-      return COVERAGE_ITEMS;
+      return items;
     }
 
-    return COVERAGE_ITEMS.filter((item) =>
+    return items.filter((item) =>
       `${item.chapter} ${item.requirement} ${item.shape} ${item.source}`
         .toLowerCase()
         .includes(normalizedQuery),
     );
-  }, [searchQuery]);
-  const selectedItem =
-    COVERAGE_ITEMS.find((item) => item.id === selectedItemId) ?? COVERAGE_ITEMS[0];
+  }, [items, searchQuery]);
+  const selectedItem = items.find((item) => item.id === selectedItemId) ?? items[0];
 
   useEffect(() => {
-    rowRefs.current.get(selectedItem.id)?.scrollIntoView({ block: "nearest" });
-  }, [selectedItem.id]);
+    if (selectedItem) {
+      rowRefs.current.get(selectedItem.id)?.scrollIntoView({ block: "nearest" });
+    }
+  }, [selectedItem]);
+
+  async function handleIngestRootPdf() {
+    setIsIngesting(true);
+    try {
+      await onIngestRootPdf();
+    } finally {
+      setIsIngesting(false);
+    }
+  }
 
   return (
     <section className="coverage-page" aria-labelledby="coverage-title">
@@ -63,19 +76,24 @@ export function CoverageMatrixPage({
             工作台首页 / PDF 覆盖矩阵
           </h1>
           <p className="page-subtitle">
-            第一版必须覆盖根目录 PDF 的 23 个章节。当前为 Phase 1 骨架，后续阶段逐章落计算和规则。
+            第一版必须覆盖根目录 PDF 的 23 个章节。当前显示 PDF 索引后的目录、知识引用和来源页码。
           </p>
         </div>
-        <button className="secondary-button" type="button" onClick={onRefresh}>
-          <RefreshCw size={16} aria-hidden="true" />
-          刷新覆盖矩阵
+        <button
+          className="secondary-button"
+          type="button"
+          disabled={isIngesting}
+          onClick={() => void handleIngestRootPdf()}
+        >
+          <DatabaseZap size={16} aria-hidden="true" />
+          导入/刷新 PDF 索引
         </button>
       </div>
 
       <div className="coverage-summary" aria-label="覆盖摘要">
         <SummaryMetric label="章节总数" value={String(total)} />
         <SummaryMetric label="已实现" value={String(completed)} />
-        <SummaryMetric label="当前阶段" value="Phase 1" />
+        <SummaryMetric label="当前阶段" value="Phase 2" />
         <SummaryMetric label="最近刷新" value={formatRefreshTime(lastRefreshedAt)} />
       </div>
 
@@ -138,29 +156,39 @@ export function CoverageMatrixPage({
         </table>
       </div>
 
-      <section className="chapter-detail" aria-labelledby="chapter-detail-title">
-        <div>
-          <h2 id="chapter-detail-title">{selectedItem.chapter} · 章节入口</h2>
-          <p>{selectedItem.requirement}</p>
-        </div>
-        <dl>
+      {selectedItem ? (
+        <section className="chapter-detail" aria-labelledby="chapter-detail-title">
           <div>
-            <dt>实现形态</dt>
-            <dd>{selectedItem.shape}</dd>
+            <h2 id="chapter-detail-title">{selectedItem.chapter} · 章节入口</h2>
+            <p>{selectedItem.requirement}</p>
           </div>
-          <div>
-            <dt>来源</dt>
-            <dd>{selectedItem.source}</dd>
-          </div>
-          <div>
-            <dt>当前状态</dt>
-            <dd>{STATUS_LABELS[selectedItem.status]}</dd>
-          </div>
-        </dl>
-        <p className="chapter-detail__note">
-          Phase 1 提供章节入口和覆盖追踪；公式、规则、来源页码和回归样例按后续阶段逐项落库。
-        </p>
-      </section>
+          <dl>
+            <div>
+              <dt>实现形态</dt>
+              <dd>{selectedItem.shape}</dd>
+            </div>
+            <div>
+              <dt>匹配页码</dt>
+              <dd>{selectedItem.source}</dd>
+            </div>
+            <div>
+              <dt>目录页</dt>
+              <dd>{selectedItem.catalogPage ?? "待索引"}</dd>
+            </div>
+            <div>
+              <dt>知识条目</dt>
+              <dd>{selectedItem.entryCount} 条</dd>
+            </div>
+            <div>
+              <dt>当前状态</dt>
+              <dd>{STATUS_LABELS[selectedItem.status]}</dd>
+            </div>
+          </dl>
+          <p className="chapter-detail__note">
+            {selectedItem.catalogExcerpt || "尚未建立 PDF 索引，刷新覆盖矩阵只会显示规划状态。"}
+          </p>
+        </section>
+      ) : null}
     </section>
   );
 }

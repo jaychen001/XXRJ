@@ -1,4 +1,6 @@
 mod db;
+mod knowledge;
+mod pdf;
 
 fn main() {
     tauri::Builder::default()
@@ -8,7 +10,15 @@ fn main() {
             db::initialize_database(app.handle()).map_err(|error| error.to_string())?;
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![db::get_database_health])
+        .invoke_handler(tauri::generate_handler![
+            db::get_database_health,
+            pdf::root_note_ingest::get_pdf_coverage_items,
+            pdf::root_note_ingest::ingest_root_pdf_note,
+            pdf::root_note_ingest::list_parameter_candidates,
+            pdf::root_note_ingest::list_recent_knowledge_entries,
+            pdf::root_note_ingest::search_knowledge_entries,
+            pdf::root_note_ingest::update_parameter_candidate_status
+        ])
         .run(tauri::generate_context!())
         .expect("failed to run selector desktop app");
 }

@@ -13,6 +13,9 @@ export interface CoverageItem {
   status: CoverageStatus;
   source: string;
   entryCount: number;
+  catalogPage?: string | null;
+  catalogExcerpt?: string;
+  notes?: string;
 }
 
 export const COVERAGE_ITEMS: CoverageItem[] = [

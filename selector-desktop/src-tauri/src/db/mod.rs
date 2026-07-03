@@ -7,8 +7,13 @@ use tauri::{AppHandle, Manager};
 use thiserror::Error;
 
 const DATABASE_FILE_NAME: &str = "selector.db";
-const INITIAL_MIGRATION_ID: &str = "0001_init";
-const INITIAL_MIGRATION_SQL: &str = include_str!("../../migrations/0001_init.sql");
+const MIGRATIONS: [(&str, &str); 2] = [
+    ("0001_init", include_str!("../../migrations/0001_init.sql")),
+    (
+        "0002_pdf_catalog",
+        include_str!("../../migrations/0002_pdf_catalog.sql"),
+    ),
+];
 
 #[derive(Debug, Error)]
 pub enum DatabaseError {
@@ -31,12 +36,17 @@ pub struct DatabaseHealth {
 }
 
 pub fn initialize_database(app_handle: &AppHandle) -> Result<(), DatabaseError> {
-    let database_path = database_path(app_handle)?;
-    let mut connection = Connection::open(database_path)?;
-    connection.execute_batch("PRAGMA foreign_keys = ON;")?;
+    let mut connection = open_database(app_handle)?;
     run_migrations(&mut connection)?;
 
     Ok(())
+}
+
+pub fn open_database(app_handle: &AppHandle) -> Result<Connection, DatabaseError> {
+    let database_path = database_path(app_handle)?;
+    let connection = Connection::open(database_path)?;
+    connection.execute_batch("PRAGMA foreign_keys = ON;")?;
+    Ok(connection)
 }
 
 fn run_migrations(connection: &mut Connection) -> Result<(), DatabaseError> {
@@ -48,20 +58,22 @@ fn run_migrations(connection: &mut Connection) -> Result<(), DatabaseError> {
         );",
     )?;
 
-    let applied = transaction
-        .query_row(
-            "SELECT id FROM schema_migrations WHERE id = ?1;",
-            [INITIAL_MIGRATION_ID],
-            |row| row.get::<_, String>(0),
-        )
-        .optional()?;
+    for (migration_id, migration_sql) in MIGRATIONS {
+        let applied = transaction
+            .query_row(
+                "SELECT id FROM schema_migrations WHERE id = ?1;",
+                [migration_id],
+                |row| row.get::<_, String>(0),
+            )
+            .optional()?;
 
-    if applied.is_none() {
-        transaction.execute_batch(INITIAL_MIGRATION_SQL)?;
-        transaction.execute(
-            "INSERT INTO schema_migrations (id) VALUES (?1);",
-            [INITIAL_MIGRATION_ID],
-        )?;
+        if applied.is_none() {
+            transaction.execute_batch(migration_sql)?;
+            transaction.execute(
+                "INSERT INTO schema_migrations (id) VALUES (?1);",
+                [migration_id],
+            )?;
+        }
     }
 
     transaction.commit()?;
@@ -73,7 +85,7 @@ pub fn get_database_health(app_handle: AppHandle) -> Result<DatabaseHealth, Stri
     initialize_database(&app_handle).map_err(|error| error.to_string())?;
 
     let path = database_path(&app_handle).map_err(|error| error.to_string())?;
-    let connection = Connection::open(&path).map_err(|error| error.to_string())?;
+    let connection = open_database(&app_handle).map_err(|error| error.to_string())?;
 
     let applied_migrations = connection
         .query_row("SELECT COUNT(*) FROM schema_migrations;", [], |row| {
@@ -123,6 +135,7 @@ mod tests {
             "knowledge_sources",
             "knowledge_entries",
             "pdf_coverage_items",
+            "pdf_catalog_items",
             "internal_parameter_candidates",
             "internal_parameters",
             "calculation_cases",
@@ -144,12 +157,11 @@ mod tests {
             assert_eq!(table_count, 1, "missing table {table_name}");
         }
 
-        let migration_count = connection.query_row(
-            "SELECT COUNT(*) FROM schema_migrations WHERE id = ?1;",
-            [INITIAL_MIGRATION_ID],
-            |row| row.get::<_, i64>(0),
-        )?;
-        assert_eq!(migration_count, 1);
+        let migration_count =
+            connection.query_row("SELECT COUNT(*) FROM schema_migrations;", [], |row| {
+                row.get::<_, i64>(0)
+            })?;
+        assert_eq!(migration_count, 2);
 
         Ok(())
     }

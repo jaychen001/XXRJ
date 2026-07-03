@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { COVERAGE_ITEMS } from "../domain/coverage";
+import { COVERAGE_ITEMS, type CoverageItem } from "../domain/coverage";
+import { mapCoverageRecord, type RootPdfIngestSummary } from "../domain/knowledge";
 import { CoverageMatrixPage } from "../features/coverage/CoverageMatrixPage";
+import { KnowledgeSearchPage } from "../features/knowledge/KnowledgeSearchPage";
+import { ParameterCandidatePage } from "../features/parameters/ParameterCandidatePage";
+import { getPdfCoverageItems, ingestRootPdfNote } from "../shared/api/knowledge";
 import { AppShell } from "../shared/ui/AppShell";
 import type { DatabaseHealth } from "../shared/ui/TracePanel";
 import type { AppRouteId } from "./routes";
@@ -10,8 +14,10 @@ import { getAppRoute } from "./routes";
 export function App() {
   const [activeRoute, setActiveRoute] = useState<AppRouteId>("coverage");
   const [searchQuery, setSearchQuery] = useState("");
+  const [coverageItems, setCoverageItems] = useState<CoverageItem[]>(COVERAGE_ITEMS);
   const [selectedCoverageId, setSelectedCoverageId] = useState(COVERAGE_ITEMS[0].id);
   const [coverageRefreshedAt, setCoverageRefreshedAt] = useState(new Date());
+  const [ingestSummary, setIngestSummary] = useState<RootPdfIngestSummary | null>(null);
   const [health, setHealth] = useState<DatabaseHealth | null>(null);
   const [isHealthLoading, setIsHealthLoading] = useState(true);
 
@@ -43,11 +49,36 @@ export function App() {
     }
 
     void loadHealth();
+    void loadCoverageItems();
 
     return () => {
       isMounted = false;
     };
   }, []);
+
+  async function loadCoverageItems() {
+    try {
+      const records = await getPdfCoverageItems();
+      const mappedItems = records.map(mapCoverageRecord);
+      if (mappedItems.length > 0) {
+        setCoverageItems(mappedItems);
+        if (!mappedItems.some((item) => item.id === selectedCoverageId)) {
+          setSelectedCoverageId(mappedItems[0].id);
+        }
+      }
+    } catch {
+      setCoverageItems(COVERAGE_ITEMS);
+    } finally {
+      setCoverageRefreshedAt(new Date());
+    }
+  }
+
+  async function handleIngestRootPdf() {
+    const summary = await ingestRootPdfNote();
+    setIngestSummary(summary);
+    await loadCoverageItems();
+    return summary;
+  }
 
   return (
     <div className="app-root">
@@ -56,7 +87,7 @@ export function App() {
         onRouteChange={setActiveRoute}
         searchQuery={searchQuery}
         onSearchQueryChange={setSearchQuery}
-        chapterItems={COVERAGE_ITEMS}
+        chapterItems={coverageItems}
         activeChapterId={selectedCoverageId}
         onChapterOpen={(chapterId) => {
           setActiveRoute("coverage");
@@ -68,11 +99,22 @@ export function App() {
       >
         {activeRoute === "coverage" ? (
           <CoverageMatrixPage
+            items={coverageItems}
             searchQuery={searchQuery}
             selectedItemId={selectedCoverageId}
             lastRefreshedAt={coverageRefreshedAt}
             onOpenItem={setSelectedCoverageId}
-            onRefresh={() => setCoverageRefreshedAt(new Date())}
+            onIngestRootPdf={handleIngestRootPdf}
+          />
+        ) : activeRoute === "knowledge" ? (
+          <KnowledgeSearchPage
+            ingestSummary={ingestSummary}
+            onIngestRootPdf={handleIngestRootPdf}
+          />
+        ) : activeRoute === "parameters" ? (
+          <ParameterCandidatePage
+            ingestSummary={ingestSummary}
+            onIngestRootPdf={handleIngestRootPdf}
           />
         ) : (
           <PlaceholderPage routeId={activeRoute} />
@@ -105,7 +147,7 @@ function PlaceholderPage({ routeId }: PlaceholderPageProps) {
         {route.label}
       </h1>
       <p className="page-subtitle">
-        {route.description}。该页面入口已纳入 Phase 1 导航骨架，具体业务实现按 DEV-PLAN 后续阶段推进。
+        {route.description}。该页面入口已纳入导航，具体业务实现按 DEV-PLAN 后续阶段推进。
       </p>
     </section>
   );

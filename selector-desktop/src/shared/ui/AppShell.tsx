@@ -12,6 +12,7 @@ import { RiskBadge } from "./RiskBadge";
 import type { DatabaseHealth } from "./TracePanel";
 import { TracePanel } from "./TracePanel";
 import "./app-shell.css";
+import "./screen-reader.css";
 
 interface AppShellProps {
   activeRoute: AppRouteId;

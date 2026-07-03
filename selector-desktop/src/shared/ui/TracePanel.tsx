@@ -82,17 +82,17 @@ export function TracePanel({
               <span>根目录 PDF</span>
             </div>
             <p>
-              当前阶段只建立入口和追溯骨架；PDF 解析、页码索引和参数候选抽取在 Phase 2 落地。
+              PDF 目录、页码索引、知识条目和参数候选通过本地导入命令写入 SQLite。
             </p>
           </section>
 
           <section className="trace-section">
             <div className="trace-section__title">
               <ShieldAlert size={16} aria-hidden="true" />
-              <span>Phase 1 边界</span>
+              <span>当前边界</span>
             </div>
             <p>
-              本阶段不实现计算公式，不推荐型号，不导入厂家样本；只保证桌面壳、视觉骨架和数据库底座可运行。
+              知识检索只作为方法依据；公式计算、型号推荐和厂家样本匹配按后续 Phase 继续落地。
             </p>
           </section>
         </>

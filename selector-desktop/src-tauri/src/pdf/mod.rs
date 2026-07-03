@@ -1,0 +1,10 @@
+mod catalog;
+mod coverage;
+mod knowledge_entries;
+mod parameters;
+pub mod root_note_ingest;
+mod snippets;
+mod text_extract;
+
+#[cfg(test)]
+mod root_note_ingest_tests;
