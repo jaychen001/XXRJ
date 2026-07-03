@@ -1,0 +1,46 @@
+:root {
+  --color-background: #f5f7fa;
+  --color-surface: #ffffff;
+  --color-surface-subtle: #eef2f6;
+  --color-primary: #2563eb;
+  --color-primary-weak: #dbeafe;
+  --color-success: #148a5b;
+  --color-warning: #b7791f;
+  --color-danger: #b42318;
+  --color-info: #0f766e;
+  --color-text-primary: #17202a;
+  --color-text-secondary: #5b6573;
+  --color-text-muted: #7a8491;
+  --color-border: #d7dde5;
+  --color-focus: #1d4ed8;
+
+  --font-ui: "Segoe UI", "Microsoft YaHei UI", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", Consolas, monospace;
+
+  --text-heading-lg: 20px;
+  --text-heading-md: 16px;
+  --text-heading-sm: 14px;
+  --text-body: 14px;
+  --text-table: 13px;
+  --text-caption: 12px;
+
+  --space-2xs: 2px;
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 24px;
+  --space-2xl: 32px;
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.08);
+  --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.14);
+
+  color: var(--color-text-primary);
+  background: var(--color-background);
+  font-family: var(--font-ui);
+  font-size: var(--text-body);
+}

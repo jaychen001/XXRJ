@@ -5,11 +5,15 @@ node_modules/
 # Frontend build output
 dist/
 build/
-coverage/
+/coverage/
+selector-desktop/coverage/
+*.tsbuildinfo
+selector-desktop/phase1-home.png
 
 # Tauri / Rust build output
 target/
 selector-desktop/src-tauri/target/
+selector-desktop/src-tauri/gen/
 
 # Local environment
 .env

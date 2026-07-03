@@ -1,0 +1,35 @@
+.risk-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  height: 24px;
+  padding: 0 var(--space-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-caption);
+  line-height: 18px;
+  white-space: nowrap;
+}
+
+.risk-badge--success {
+  color: var(--color-success);
+  background: #e8f5ef;
+  border-color: #b7dfcc;
+}
+
+.risk-badge--warning {
+  color: var(--color-warning);
+  background: #fff7e6;
+  border-color: #f1d39a;
+}
+
+.risk-badge--danger {
+  color: var(--color-danger);
+  background: #fff0ed;
+  border-color: #f2b8ae;
+}
+
+.risk-badge--neutral {
+  color: var(--color-text-secondary);
+  background: var(--color-surface-subtle);
+}
