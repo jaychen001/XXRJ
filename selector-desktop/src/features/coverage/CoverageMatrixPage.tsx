@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, DatabaseZap } from "lucide-react";
 import type { CoverageItem, CoverageStatus } from "../../domain/coverage";
 import { DriveModulePage } from "../modules/DriveModulePage";
+import { MechanicalTransmissionPage } from "../modules/MechanicalTransmissionPage";
 import { RiskBadge, type RiskTone } from "../../shared/ui/RiskBadge";
 import "./coverage-matrix-page.css";
 
@@ -94,7 +95,7 @@ export function CoverageMatrixPage({
       <div className="coverage-summary" aria-label="覆盖摘要">
         <SummaryMetric label="章节总数" value={String(total)} />
         <SummaryMetric label="已实现" value={String(completed)} />
-        <SummaryMetric label="当前阶段" value="Phase 4" />
+        <SummaryMetric label="当前阶段" value="Phase 5" />
         <SummaryMetric label="最近刷新" value={formatRefreshTime(lastRefreshedAt)} />
       </div>
 
@@ -188,11 +189,19 @@ export function CoverageMatrixPage({
           <p className="chapter-detail__note">
             {selectedItem.catalogExcerpt || "尚未建立 PDF 索引，刷新覆盖矩阵只会显示规划状态。"}
           </p>
-          <DriveModulePage item={selectedItem} />
+          {isMechanicalTransmission(selectedItem.id) ? (
+            <MechanicalTransmissionPage item={selectedItem} />
+          ) : (
+            <DriveModulePage item={selectedItem} />
+          )}
         </section>
       ) : null}
     </section>
   );
+}
+
+function isMechanicalTransmission(itemId: string): boolean {
+  return ["v-belt", "gear", "chain", "cam-indexer", "brake-clutch"].includes(itemId);
 }
 
 interface SummaryMetricProps {

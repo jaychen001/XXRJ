@@ -7,12 +7,17 @@ use crate::knowledge::models::NewCoverageRecord;
 use super::text_extract::PdfPageText;
 
 const COVERAGE_MATRIX_JSON: &str = include_str!("../../resources/pdf_coverage_matrix.json");
-const PHASE4_DONE_IDS: &[&str] = &[
+const IMPLEMENTED_CHAPTER_IDS: &[&str] = &[
     "motor",
     "ball-screw",
     "timing-belt",
+    "v-belt",
+    "gear",
+    "chain",
     "reducer",
     "linear-module",
+    "cam-indexer",
+    "brake-clutch",
 ];
 
 #[derive(Debug, Deserialize)]
@@ -42,7 +47,7 @@ pub(crate) fn build_coverage_records(
                 chapter: seed.chapter.clone(),
                 implementation_shape: seed.implementation_shape.clone(),
                 status: coverage_status(&seed.id, !page_numbers.is_empty()).to_string(),
-                source_page_range: phase4_source_page(&seed.id)
+                source_page_range: implemented_source_page(&seed.id)
                     .map(ToString::to_string)
                     .or_else(|| compact_pages(&page_numbers)),
                 notes: format!("要求：{}；种子来源：{}", seed.requirement, seed.source),
@@ -52,7 +57,7 @@ pub(crate) fn build_coverage_records(
 }
 
 pub(crate) fn coverage_status(id: &str, has_pages: bool) -> &'static str {
-    if PHASE4_DONE_IDS.contains(&id) {
+    if IMPLEMENTED_CHAPTER_IDS.contains(&id) {
         "done"
     } else if has_pages {
         "partial"
@@ -61,13 +66,18 @@ pub(crate) fn coverage_status(id: &str, has_pages: bool) -> &'static str {
     }
 }
 
-pub(crate) fn phase4_source_page(id: &str) -> Option<&'static str> {
+pub(crate) fn implemented_source_page(id: &str) -> Option<&'static str> {
     match id {
         "motor" => Some("PDF P4 / 文档页 1"),
         "ball-screw" => Some("PDF P25 / 文档页 22"),
         "timing-belt" => Some("PDF P34 / 文档页 31"),
+        "v-belt" => Some("PDF P40 / 文档页 37"),
+        "gear" => Some("PDF P44 / 文档页 41"),
+        "chain" => Some("PDF P49 / 文档页 46"),
         "reducer" => Some("PDF P54 / 文档页 51"),
         "linear-module" => Some("PDF P57 / 文档页 54"),
+        "cam-indexer" => Some("PDF P59 / 文档页 56"),
+        "brake-clutch" => Some("PDF P65 / 文档页 62"),
         _ => None,
     }
 }

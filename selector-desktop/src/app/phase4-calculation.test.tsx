@@ -22,7 +22,7 @@ describe("Phase 4 drive and transmission modules", () => {
     render(<App />);
     await screen.findByText("本地数据正常");
 
-    expect(screen.getByText("Phase 4")).toBeInTheDocument();
+    expect(screen.getByText("Phase 5")).toBeInTheDocument();
     expect(screen.getAllByText("已实现").length).toBeGreaterThanOrEqual(5);
     expect(screen.getByText("计算项")).toBeInTheDocument();
     expect(screen.getByText("规则项")).toBeInTheDocument();

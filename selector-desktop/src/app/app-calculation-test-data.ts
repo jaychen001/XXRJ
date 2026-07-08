@@ -3,6 +3,7 @@ import type {
   CalculationResult,
   ModuleDefinition,
 } from "../domain/calculation";
+import { mechanicalModules, mechanicalResultForModule } from "./app-mechanical-test-data";
 
 export const calculationResult = {
   moduleId: "timing-belt-basic",
@@ -64,6 +65,7 @@ export const calculationModules: ModuleDefinition[] = [
     field("frictionCoefficient", "摩擦系数", "ratio", 0.05, "PDF P25 / 文档页 22 / 丝杆篇"),
     field("efficiency", "丝杠效率", "ratio", 0.9, "PDF P25 / 文档页 22 / 丝杆篇"),
   ]),
+  ...mechanicalModules,
   implementedModule("reducer-basic", "减速机基础计算", "传动", "减速机", "减速比、输出扭矩和输入扭矩", [
     field("motorSpeed", "电机转速", "rpm", 1500, "PDF P54 / 文档页 51 / 减速机", ["rpm", "rps"]),
     field("outputSpeed", "输出转速", "rpm", 60, "PDF P54 / 文档页 51 / 减速机", ["rpm", "rps"]),
@@ -113,6 +115,10 @@ export const initialCaseRecord = {
 };
 
 export function calculationResultForModule(moduleId: string): CalculationResult {
+  const mechanicalResult = mechanicalResultForModule(moduleId);
+  if (mechanicalResult) {
+    return mechanicalResult;
+  }
   return moduleId === "ball-screw-servo" ? ballScrewResult : calculationResult;
 }
 

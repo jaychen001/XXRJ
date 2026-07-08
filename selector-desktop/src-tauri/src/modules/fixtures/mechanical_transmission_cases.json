@@ -1,0 +1,78 @@
+[
+  {
+    "name": "V 带功率例题",
+    "moduleId": "v-belt-selector",
+    "safetyFactor": 1.3,
+    "safetyFactorConfirmed": true,
+    "fields": [
+      { "id": "transmitPower", "value": 0.75, "unit": "kW" },
+      { "id": "smallPulleyDiameter", "value": 100.0, "unit": "mm" },
+      { "id": "smallPulleySpeed", "value": 1450.0, "unit": "rpm" },
+      { "id": "serviceFactor", "value": 1.3, "unit": "ratio" },
+      { "id": "beltEfficiency", "value": 0.95, "unit": "ratio" }
+    ],
+    "expectedStepLabels": ["带速", "设计功率"],
+    "expectedRequirementIds": ["designPower", "beltSpeed"]
+  },
+  {
+    "name": "齿轮中心距例题",
+    "moduleId": "gear-basic",
+    "safetyFactor": 1.2,
+    "safetyFactorConfirmed": true,
+    "fields": [
+      { "id": "module", "value": 2.0, "unit": "mm" },
+      { "id": "driveTeeth", "value": 20.0, "unit": "teeth" },
+      { "id": "drivenTeeth", "value": 60.0, "unit": "teeth" },
+      { "id": "faceWidth", "value": 20.0, "unit": "mm" }
+    ],
+    "expectedStepLabels": ["主动分度圆", "从动分度圆", "中心距", "减速比"],
+    "expectedRequirementIds": ["module", "centerDistance", "gearRatio"]
+  },
+  {
+    "name": "链条节距例题",
+    "moduleId": "chain-selector",
+    "safetyFactor": 1.4,
+    "safetyFactorConfirmed": true,
+    "fields": [
+      { "id": "pitch", "value": 12.7, "unit": "mm" },
+      { "id": "smallSprocketTeeth", "value": 18.0, "unit": "teeth" },
+      { "id": "largeSprocketTeeth", "value": 36.0, "unit": "teeth" },
+      { "id": "centerDistance", "value": 500.0, "unit": "mm" },
+      { "id": "sprocketSpeed", "value": 200.0, "unit": "rpm" }
+    ],
+    "expectedStepLabels": ["传动比", "链速", "链节数"],
+    "expectedRequirementIds": ["chainRatio", "chainSpeed", "chainLinks"]
+  },
+  {
+    "name": "凸轮分割器例题",
+    "moduleId": "cam-indexer-sizing",
+    "safetyFactor": 1.6,
+    "safetyFactorConfirmed": true,
+    "fields": [
+      { "id": "stationCount", "value": 8.0, "unit": "station" },
+      { "id": "cycleTime", "value": 2.0, "unit": "s" },
+      { "id": "indexAngle", "value": 45.0, "unit": "deg" },
+      { "id": "tableInertia", "value": 0.05, "unit": "kg·m²" },
+      { "id": "loadTorque", "value": 5.0, "unit": "Nm" },
+      { "id": "efficiency", "value": 0.8, "unit": "ratio" }
+    ],
+    "expectedStepLabels": ["输出转速", "角加速度", "惯量扭矩", "设计扭矩"],
+    "expectedRequirementIds": ["outputSpeed", "angularAcceleration", "designTorque"]
+  },
+  {
+    "name": "制动器离合器例题",
+    "moduleId": "brake-clutch-selector",
+    "safetyFactor": 1.5,
+    "safetyFactorConfirmed": true,
+    "fields": [
+      { "id": "loadTorque", "value": 5.0, "unit": "Nm" },
+      { "id": "rotatingInertia", "value": 0.02, "unit": "kg·m²" },
+      { "id": "shaftSpeed", "value": 600.0, "unit": "rpm" },
+      { "id": "stopTime", "value": 0.3, "unit": "s" },
+      { "id": "cyclesPerMinute", "value": 20.0, "unit": "cycle/min" },
+      { "id": "responseTime", "value": 50.0, "unit": "ms" }
+    ],
+    "expectedStepLabels": ["角速度", "角减速度", "设计扭矩", "热负荷指标"],
+    "expectedRequirementIds": ["designTorque", "heatIndex", "responseTime"]
+  }
+]
