@@ -5,7 +5,10 @@ use super::pdf_report::build_pdf_bytes;
 
 #[test]
 fn pdf_writer_builds_valid_pdf_bytes() {
-    let bytes = build_pdf_bytes(&["非标选型计算报告".to_string(), "输出扭矩 1.280 Nm".to_string()]);
+    let bytes = build_pdf_bytes(&[
+        "非标选型计算报告".to_string(),
+        "输出扭矩 1.280 Nm".to_string(),
+    ]);
     assert!(bytes.starts_with(b"%PDF-1.4"));
     assert!(bytes.ends_with(b"%%EOF\n"));
 }

@@ -1,6 +1,6 @@
-pub mod models;
 mod content;
 mod excel_report;
+pub mod models;
 mod pdf_report;
 mod repository;
 

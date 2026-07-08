@@ -1,7 +1,7 @@
 use std::path::Path;
 
 use super::field_mapping::{
-    canonical_field_for_label, label_for_field, parse_number, normalize_parameters,
+    canonical_field_for_label, label_for_field, normalize_parameters, parse_number,
 };
 use super::models::{FieldMapping, VendorImportPreview, VendorParameter, VendorPreviewRow};
 use super::repository::next_id;
@@ -143,7 +143,10 @@ fn is_model_token(token: &str) -> bool {
 fn clean_token(value: &str) -> String {
     value
         .trim_matches(|char: char| {
-            matches!(char, ',' | ';' | ':' | '，' | '；' | '：' | '(' | ')' | '[' | ']')
+            matches!(
+                char,
+                ',' | ';' | ':' | '，' | '；' | '：' | '(' | ')' | '[' | ']'
+            )
         })
         .to_string()
 }

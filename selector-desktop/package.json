@@ -11,7 +11,8 @@
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.node.json",
     "tauri": "tauri",
     "tauri:dev": "cmd /c scripts\\tauri-dev.cmd",
-    "tauri:build": "cmd /c scripts\\tauri-build.cmd"
+    "tauri:build": "cmd /c scripts\\tauri-build.cmd",
+    "package:windows": "cmd /c scripts\\package-windows.cmd"
   },
   "dependencies": {
     "@tauri-apps/api": "2.11.1",

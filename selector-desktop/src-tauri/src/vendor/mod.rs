@@ -1,6 +1,6 @@
-pub mod models;
 mod field_mapping;
 mod import_job;
+pub mod models;
 mod pdf_import;
 mod recommendation;
 mod repository;
@@ -44,7 +44,9 @@ pub fn confirm_vendor_import(
     validate_confirm_request(&request)?;
     db::initialize_database(&app_handle).map_err(|error| error.to_string())?;
     let mut connection = db::open_database(&app_handle).map_err(|error| error.to_string())?;
-    let transaction = connection.transaction().map_err(|error| error.to_string())?;
+    let transaction = connection
+        .transaction()
+        .map_err(|error| error.to_string())?;
     let repository = VendorRepository::new(&transaction);
     let library_id = next_id("vendor-library");
     let library = repository

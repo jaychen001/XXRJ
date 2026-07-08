@@ -163,10 +163,7 @@ impl<'a> VendorRepository<'a> {
         Ok(changed > 0)
     }
 
-    fn find_library(
-        &self,
-        id: &str,
-    ) -> Result<Option<VendorLibraryRecord>, VendorRepositoryError> {
+    fn find_library(&self, id: &str) -> Result<Option<VendorLibraryRecord>, VendorRepositoryError> {
         self.connection
             .query_row(
                 "SELECT l.id, l.name, l.component_type, l.source_file, l.source_format,
@@ -213,10 +210,9 @@ fn map_model_row(row: &rusqlite::Row<'_>) -> rusqlite::Result<VendorModelRecord>
     let normalized_json: String = row.get(8)?;
     let parameters =
         serde_json::from_str::<Vec<VendorParameter>>(&parameters_json).unwrap_or_default();
-    let normalized_parameters = serde_json::from_str::<HashMap<String, NormalizedParameter>>(
-        &normalized_json,
-    )
-    .unwrap_or_default();
+    let normalized_parameters =
+        serde_json::from_str::<HashMap<String, NormalizedParameter>>(&normalized_json)
+            .unwrap_or_default();
     Ok(VendorModelRecord {
         id: row.get(0)?,
         library_id: row.get(1)?,

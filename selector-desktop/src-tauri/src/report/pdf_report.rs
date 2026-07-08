@@ -22,8 +22,12 @@ pub fn build_pdf_bytes(lines: &[String]) -> Vec<u8> {
             .collect::<Vec<_>>()
     };
     let mut objects = Vec::<(usize, String)>::new();
-    let page_ids = (0..pages.len()).map(|index| 6 + index * 2).collect::<Vec<_>>();
-    let content_ids = (0..pages.len()).map(|index| 7 + index * 2).collect::<Vec<_>>();
+    let page_ids = (0..pages.len())
+        .map(|index| 6 + index * 2)
+        .collect::<Vec<_>>();
+    let content_ids = (0..pages.len())
+        .map(|index| 7 + index * 2)
+        .collect::<Vec<_>>();
 
     objects.push((1, "<< /Type /Catalog /Pages 2 0 R >>".to_string()));
     objects.push((
@@ -53,7 +57,11 @@ pub fn build_pdf_bytes(lines: &[String]) -> Vec<u8> {
         let stream = page_stream(page_lines);
         objects.push((
             content_ids[index],
-            format!("<< /Length {} >>\nstream\n{}\nendstream", stream.as_bytes().len(), stream),
+            format!(
+                "<< /Length {} >>\nstream\n{}\nendstream",
+                stream.as_bytes().len(),
+                stream
+            ),
         ));
     }
 

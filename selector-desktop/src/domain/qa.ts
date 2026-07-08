@@ -20,3 +20,26 @@ export interface QaCheck {
   passed: boolean;
   detail: string;
 }
+
+export interface QaRegressionReport {
+  status: "pass" | "fail";
+  totalCases: number;
+  passedCases: number;
+  failedCases: number;
+  groups: QaRegressionGroup[];
+}
+
+export interface QaRegressionGroup {
+  label: string;
+  totalCases: number;
+  passedCases: number;
+  failedCases: number;
+  cases: QaRegressionCaseResult[];
+}
+
+export interface QaRegressionCaseResult {
+  name: string;
+  moduleId: string;
+  status: "pass" | "fail";
+  detail: string;
+}

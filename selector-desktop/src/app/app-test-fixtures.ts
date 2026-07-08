@@ -226,6 +226,9 @@ export function setupAppInvokeMock(invokeMock: InvokeMock) {
     if (command === "get_qa_coverage_audit") {
       return Promise.resolve(qaCoverageAudit());
     }
+    if (command === "run_qa_regression") {
+      return Promise.resolve(qaRegressionReport());
+    }
     return Promise.resolve(null);
   });
 }
@@ -435,6 +438,38 @@ function qaCoverageAudit() {
       sourcePage: record.sourcePageRange,
       implementationShape: record.implementationShape,
     })),
+  };
+}
+
+function qaRegressionReport() {
+  return {
+    status: "pass",
+    totalCases: 4,
+    passedCases: 4,
+    failedCases: 0,
+    groups: [
+      regressionGroup("Phase 4 驱动与线性传动", "同步带回归样例", "timing-belt"),
+      regressionGroup("Phase 5 机械传动与间歇机构", "V 带回归样例", "v-belt"),
+      regressionGroup("Phase 6 气动与支撑件", "气缸回归样例", "cylinder"),
+      regressionGroup("Phase 7 规则选型模块", "机器人回归样例", "robot"),
+    ],
+  };
+}
+
+function regressionGroup(label: string, name: string, moduleId: string) {
+  return {
+    label,
+    totalCases: 1,
+    passedCases: 1,
+    failedCases: 0,
+    cases: [
+      {
+        name,
+        moduleId,
+        status: "pass",
+        detail: "步骤 3 项，规则 3 项，来源 1 项",
+      },
+    ],
   };
 }
 

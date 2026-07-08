@@ -251,6 +251,7 @@
 - `selector-desktop/src/features/reports/ReportExportDialog.tsx` — 报告导出弹窗。
 - `selector-desktop/src/features/qa/QaDashboardPage.tsx` — 覆盖和回归验证页面。
 - `selector-desktop/src-tauri/tauri.conf.json` — 打包、权限、外部资源配置。
+- `selector-desktop/scripts/package-windows.cmd` — Windows 打包与产物检查入口。
 
 **验收标准**：
 - 用户能选择 PDF 或 Excel 导出，文件包含计算/规则过程和来源页码。

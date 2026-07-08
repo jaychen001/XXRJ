@@ -13,9 +13,13 @@ pub fn report_lines(payload: &ReportPayload) -> Vec<String> {
         "输入参数".to_string(),
     ];
 
-    lines.extend(payload.request.fields.iter().map(|field| {
-        format!("{} = {:.6} {}", field.id, field.value, field.unit)
-    }));
+    lines.extend(
+        payload
+            .request
+            .fields
+            .iter()
+            .map(|field| format!("{} = {:.6} {}", field.id, field.value, field.unit)),
+    );
     lines.push(format!(
         "安全系数 = {}",
         payload
@@ -35,11 +39,18 @@ pub fn report_lines(payload: &ReportPayload) -> Vec<String> {
     lines.push(String::new());
     lines.push("风险与规则".to_string());
     lines.extend(payload.result.rules.iter().map(|rule| {
-        format!("{}：{}；依据 {}；来源 {}", rule.label, rule.recommendation, rule.basis, rule.source)
+        format!(
+            "{}：{}；依据 {}；来源 {}",
+            rule.label, rule.recommendation, rule.basis, rule.source
+        )
     }));
-    lines.extend(payload.result.risks.iter().map(|risk| {
-        format!("{}：{}；来源 {}", risk.level, risk.message, risk.source)
-    }));
+    lines.extend(
+        payload
+            .result
+            .risks
+            .iter()
+            .map(|risk| format!("{}：{}；来源 {}", risk.level, risk.message, risk.source)),
+    );
     lines.push(String::new());
     lines.push("候选型号".to_string());
     if payload.candidates.is_empty() {

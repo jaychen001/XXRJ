@@ -1,5 +1,6 @@
 use super::models::ModuleDefinition;
 
+#[cfg(test)]
 pub const TIMING_BELT_MODULE_ID: &str = crate::modules::transmission::timing_belt::MODULE_ID;
 
 pub fn module_definitions() -> Vec<ModuleDefinition> {

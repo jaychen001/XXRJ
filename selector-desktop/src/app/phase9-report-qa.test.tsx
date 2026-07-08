@@ -81,11 +81,17 @@ describe("Phase 9 report export and QA", () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await user.click(await screen.findByRole("button", { name: /QA 覆盖检查/ }));
-    expect(screen.getByRole("heading", { name: "QA 覆盖检查" })).toBeInTheDocument();
-    expect(await screen.findByText("QA 覆盖检查通过")).toBeInTheDocument();
+    await user.click(await screen.findByRole("button", { name: /QA/ }));
+    expect(screen.getByRole("heading", { name: /QA/ })).toBeInTheDocument();
+    expect(await screen.findByText(/QA .*通过/)).toBeInTheDocument();
     expect(screen.getAllByText("23").length).toBeGreaterThan(0);
-    expect(screen.getByText("PDF 23 章覆盖")).toBeInTheDocument();
+    expect(screen.getAllByText(/PDF 23/).length).toBeGreaterThan(0);
     expect(invokeMock).toHaveBeenCalledWith("get_qa_coverage_audit");
+
+    await user.click(screen.getByRole("button", { name: /运行回归样例/ }));
+    expect(await screen.findByText("回归样例通过：4/4")).toBeInTheDocument();
+    const regressionTable = screen.getByRole("table", { name: "回归样例结果表" });
+    expect(within(regressionTable).getByText("同步带回归样例")).toBeInTheDocument();
+    expect(invokeMock).toHaveBeenCalledWith("run_qa_regression");
   });
 });

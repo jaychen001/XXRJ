@@ -69,7 +69,9 @@ fn read_text_rows(path: &Path) -> Result<Vec<Vec<String>>, String> {
 fn rows_to_preview(
     rows: Vec<Vec<String>>,
 ) -> Result<(Vec<VendorPreviewRow>, Vec<ImportFailureRow>), String> {
-    let mut iter = rows.into_iter().filter(|row| row.iter().any(|cell| !cell.trim().is_empty()));
+    let mut iter = rows
+        .into_iter()
+        .filter(|row| row.iter().any(|cell| !cell.trim().is_empty()));
     let headers = iter
         .next()
         .ok_or_else(|| "表格为空，无法读取表头。".to_string())?;
@@ -94,9 +96,7 @@ fn rows_to_preview(
             .iter()
             .enumerate()
             .filter(|(index, _)| {
-                *index != model_index
-                    && Some(*index) != brand_index
-                    && Some(*index) != series_index
+                *index != model_index && Some(*index) != brand_index && Some(*index) != series_index
             })
             .filter_map(|(index, header)| {
                 let value = cell(&row, index);
@@ -124,8 +124,12 @@ fn rows_to_preview(
         preview_rows.push(VendorPreviewRow {
             row_index: row_index + 2,
             model_name,
-            brand: brand_index.map(|index| cell(&row, index)).unwrap_or_default(),
-            series: series_index.map(|index| cell(&row, index)).unwrap_or_default(),
+            brand: brand_index
+                .map(|index| cell(&row, index))
+                .unwrap_or_default(),
+            series: series_index
+                .map(|index| cell(&row, index))
+                .unwrap_or_default(),
             source_page: None,
             confidence,
             raw_text: row.join(" | "),

@@ -48,18 +48,20 @@ impl<'a> ReportRepository<'a> {
             )
             .optional()?;
 
-        row.map(|(case_id, case_name, notes, run_id, input_json, result_json)| {
-            Ok(ReportPayload {
-                run_id: Some(run_id),
-                case_id: Some(case_id),
-                case_name,
-                notes,
-                request: serde_json::from_str(&input_json)?,
-                result: serde_json::from_str(&result_json)?,
-                candidates: Vec::new(),
-                final_model_name: None,
-            })
-        })
+        row.map(
+            |(case_id, case_name, notes, run_id, input_json, result_json)| {
+                Ok(ReportPayload {
+                    run_id: Some(run_id),
+                    case_id: Some(case_id),
+                    case_name,
+                    notes,
+                    request: serde_json::from_str(&input_json)?,
+                    result: serde_json::from_str(&result_json)?,
+                    candidates: Vec::new(),
+                    final_model_name: None,
+                })
+            },
+        )
         .transpose()
     }
 
@@ -94,10 +96,7 @@ impl<'a> ReportRepository<'a> {
             .map_err(ReportRepositoryError::from)
     }
 
-    fn find_export(
-        &self,
-        id: &str,
-    ) -> Result<Option<ReportExportRecord>, ReportRepositoryError> {
+    fn find_export(&self, id: &str) -> Result<Option<ReportExportRecord>, ReportRepositoryError> {
         self.connection
             .query_row(
                 "SELECT id, case_id, run_id, format, path, exported_at

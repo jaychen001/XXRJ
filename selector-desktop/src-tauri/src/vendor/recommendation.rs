@@ -53,13 +53,18 @@ pub fn infer_component_type(module_id: &str) -> Option<String> {
     Some(component.to_string())
 }
 
-fn score_model(request: &RecommendationRequest, model: VendorModelRecord) -> RecommendationCandidate {
+fn score_model(
+    request: &RecommendationRequest,
+    model: VendorModelRecord,
+) -> RecommendationCandidate {
     let mut matched_rules = Vec::new();
     let mut failed_rules = Vec::new();
 
     for requirement in &request.requirements {
         match find_candidate_value(requirement, &model) {
-            Some((candidate_value, unit)) if candidate_value >= normalize_requirement(requirement).0 => {
+            Some((candidate_value, unit))
+                if candidate_value >= normalize_requirement(requirement).0 =>
+            {
                 let required_value = normalize_requirement(requirement).0;
                 matched_rules.push(MatchRuleResult {
                     requirement_id: requirement.id.clone(),

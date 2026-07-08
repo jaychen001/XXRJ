@@ -74,7 +74,9 @@ pub fn validate_confirm_request(request: &ConfirmVendorImportRequest) -> Result<
     Ok(())
 }
 
-pub fn normalize_parameters(parameters: &[VendorParameter]) -> HashMap<String, NormalizedParameter> {
+pub fn normalize_parameters(
+    parameters: &[VendorParameter],
+) -> HashMap<String, NormalizedParameter> {
     let mut normalized = HashMap::new();
     for parameter in parameters {
         let (value, unit) = normalize_value(parameter.value, &parameter.unit);

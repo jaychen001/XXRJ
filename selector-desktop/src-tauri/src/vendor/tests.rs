@@ -93,12 +93,7 @@ fn write_sample_csv() -> std::path::PathBuf {
     path
 }
 
-fn requirement(
-    id: &str,
-    label: &str,
-    value: f64,
-    unit: &str,
-) -> RecommendationRequirement {
+fn requirement(id: &str, label: &str, value: f64, unit: &str) -> RecommendationRequirement {
     RecommendationRequirement {
         id: id.to_string(),
         label: label.to_string(),
