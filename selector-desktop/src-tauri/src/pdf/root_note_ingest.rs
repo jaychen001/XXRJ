@@ -9,7 +9,9 @@ use crate::knowledge::models::{CoverageRecord, KnowledgeSearchRecord, ParameterC
 use crate::knowledge::repository::KnowledgeRepository;
 
 use super::catalog::build_catalog_items;
-use super::coverage::{build_coverage_records, coverage_seeds};
+use super::coverage::{
+    build_coverage_records, coverage_seeds, coverage_status, phase4_source_page,
+};
 use super::knowledge_entries::build_knowledge_entries;
 use super::parameters::build_parameter_candidates;
 use super::text_extract::extract_pages;
@@ -183,11 +185,11 @@ fn planned_coverage_records() -> Result<Vec<CoverageRecord>, String> {
             seeds
                 .into_iter()
                 .map(|seed| CoverageRecord {
-                    id: seed.id,
+                    id: seed.id.clone(),
                     chapter: seed.chapter,
                     implementation_shape: seed.implementation_shape,
-                    status: "planned".to_string(),
-                    source_page_range: None,
+                    status: coverage_status(&seed.id, false).to_string(),
+                    source_page_range: phase4_source_page(&seed.id).map(ToString::to_string),
                     catalog_page: None,
                     catalog_excerpt: "尚未读取根目录 PDF".to_string(),
                     knowledge_entry_count: 0,

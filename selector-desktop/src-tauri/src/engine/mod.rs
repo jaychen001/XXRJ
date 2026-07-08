@@ -1,9 +1,8 @@
 mod formula;
 pub mod models;
 mod modules;
-mod rules;
-mod safety_factor;
-mod units;
+pub(crate) mod safety_factor;
+pub(crate) mod units;
 
 use tauri::AppHandle;
 

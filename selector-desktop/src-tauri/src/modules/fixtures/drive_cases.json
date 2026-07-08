@@ -1,0 +1,50 @@
+[
+  {
+    "name": "同步带模组例题",
+    "moduleId": "timing-belt-basic",
+    "safetyFactor": 1.5,
+    "safetyFactorConfirmed": true,
+    "fields": [
+      { "id": "loadMass", "value": 5.0, "unit": "kg" },
+      { "id": "frictionCoefficient", "value": 0.1, "unit": "ratio" },
+      { "id": "targetSpeed", "value": 500.0, "unit": "mm/s" },
+      { "id": "accelerationTime", "value": 0.3, "unit": "s" },
+      { "id": "pulleyTeeth", "value": 20.0, "unit": "teeth" },
+      { "id": "toothPitch", "value": 5.0, "unit": "mm" },
+      { "id": "efficiency", "value": 0.9, "unit": "ratio" }
+    ],
+    "expectedStepLabels": ["摩擦力", "加速力", "输出扭矩", "需求转速"],
+    "expectedRequirementIds": ["outputTorque", "requiredSpeed"]
+  },
+  {
+    "name": "丝杆伺服例题",
+    "moduleId": "ball-screw-servo",
+    "safetyFactor": 1.6,
+    "safetyFactorConfirmed": true,
+    "fields": [
+      { "id": "loadMass", "value": 10.0, "unit": "kg" },
+      { "id": "lead", "value": 10.0, "unit": "mm" },
+      { "id": "targetSpeed", "value": 300.0, "unit": "mm/s" },
+      { "id": "accelerationTime", "value": 0.2, "unit": "s" },
+      { "id": "frictionCoefficient", "value": 0.05, "unit": "ratio" },
+      { "id": "efficiency", "value": 0.9, "unit": "ratio" }
+    ],
+    "expectedStepLabels": ["直动惯量", "角加速度", "加速力矩", "匀速力矩", "总力矩", "需求转速"],
+    "expectedRequirementIds": ["reflectedInertia", "totalTorque", "requiredSpeed"]
+  },
+  {
+    "name": "通用电机输送线例题",
+    "moduleId": "general-motor-power",
+    "safetyFactor": 1.4,
+    "safetyFactorConfirmed": true,
+    "fields": [
+      { "id": "loadMass", "value": 20.0, "unit": "kg" },
+      { "id": "driveDiameter", "value": 80.0, "unit": "mm" },
+      { "id": "lineSpeed", "value": 300.0, "unit": "mm/s" },
+      { "id": "frictionCoefficient", "value": 0.15, "unit": "ratio" },
+      { "id": "efficiency", "value": 0.85, "unit": "ratio" }
+    ],
+    "expectedStepLabels": ["摩擦力", "输出扭矩", "需求转速", "需求功率"],
+    "expectedRequirementIds": ["power", "outputTorque", "requiredSpeed"]
+  }
+]

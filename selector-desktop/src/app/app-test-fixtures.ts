@@ -3,6 +3,7 @@ import {
   calculationModules,
   calculationRequest,
   calculationResult,
+  calculationResultForModule,
   initialCaseRecord,
   type CalculationRequestFixture,
 } from "./app-calculation-test-data";
@@ -25,8 +26,8 @@ export const coverageRecords = COVERAGE_ITEMS.map((item, index) => ({
   id: item.id,
   chapter: item.chapter,
   implementationShape: item.shape,
-  status: "partial",
-  sourcePageRange: `P${index + 1}`,
+  status: item.status,
+  sourcePageRange: item.source.startsWith("PDF P") ? item.source : `P${index + 1}`,
   catalogPage: `P${index + 1}`,
   catalogExcerpt: `${item.chapter} PDF 目录摘录`,
   knowledgeEntryCount: 2,
@@ -78,7 +79,7 @@ export function setupAppInvokeMock(invokeMock: InvokeMock) {
       return Promise.resolve(calculationModules);
     }
     if (command === "run_calculation") {
-      return Promise.resolve(calculationResult);
+      return Promise.resolve(calculationResultForModule(getRequestModuleId(args)));
     }
     if (command === "save_calculation_case") {
       const payload = getMockObjectArg(args, "payload");
@@ -86,7 +87,10 @@ export function setupAppInvokeMock(invokeMock: InvokeMock) {
       caseRecords = [saved, ...caseRecords];
       caseRequests[saved.id] =
         (payload.request as CalculationRequestFixture | undefined) ?? calculationRequest;
-      return Promise.resolve({ caseRecord: saved, result: calculationResult });
+      return Promise.resolve({
+        caseRecord: saved,
+        result: calculationResultForModule(getMockStringField(getMockObjectArg(payload, "request"), "moduleId")),
+      });
     }
     if (command === "list_calculation_cases") {
       const filter = getMockObjectArg(args, "filter");
@@ -134,11 +138,11 @@ export function setupAppInvokeMock(invokeMock: InvokeMock) {
     }
     if (command === "rerun_calculation_case_with_request") {
       const id = getMockArg(args, "id");
-      const request = getMockObjectArg(args, "request") as CalculationRequestFixture;
+      const request = getMockObjectArg(args, "request") as unknown as CalculationRequestFixture;
       caseRequests[id] = request;
       return Promise.resolve({
         caseRecord: caseRecords.find((item) => item.id === id) ?? caseRecords[0],
-        result: calculationResult,
+        result: calculationResultForModule(request.moduleId),
       });
     }
     if (command === "delete_calculation_case") {
@@ -170,6 +174,10 @@ function getMockObjectArg(args: unknown, key: string): Record<string, unknown> {
 
 function getMockStringField(record: Record<string, unknown>, key: string): string {
   return typeof record[key] === "string" ? record[key] : "";
+}
+
+function getRequestModuleId(args: unknown): string {
+  return getMockStringField(getMockObjectArg(args, "request"), "moduleId");
 }
 
 function knowledgeSearchResult(query: string) {

@@ -2,6 +2,7 @@ mod cases;
 mod db;
 mod engine;
 mod knowledge;
+mod modules;
 mod pdf;
 
 fn main() {

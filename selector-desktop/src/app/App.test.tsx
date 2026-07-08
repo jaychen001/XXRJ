@@ -124,8 +124,8 @@ describe("App desktop shell", () => {
 
     expect(await screen.findByText("摩擦力")).toBeInTheDocument();
     expect(screen.getByText("速度区间")).toBeInTheDocument();
-    expect(screen.getAllByText("根目录 PDF / 同步带匹配页").length).toBeGreaterThan(0);
-    expect(screen.getByText(/输出扭矩 0.221 Nm/)).toBeInTheDocument();
+    expect(screen.getAllByText("PDF P34 / 文档页 31 / 同步带").length).toBeGreaterThan(0);
+    expect(screen.getByText(/输出扭矩 0.351 Nm/)).toBeInTheDocument();
     expect(invokeMock).toHaveBeenCalledWith(
       "run_calculation",
       expect.objectContaining({

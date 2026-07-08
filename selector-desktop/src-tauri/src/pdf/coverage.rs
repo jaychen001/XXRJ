@@ -7,6 +7,13 @@ use crate::knowledge::models::NewCoverageRecord;
 use super::text_extract::PdfPageText;
 
 const COVERAGE_MATRIX_JSON: &str = include_str!("../../resources/pdf_coverage_matrix.json");
+const PHASE4_DONE_IDS: &[&str] = &[
+    "motor",
+    "ball-screw",
+    "timing-belt",
+    "reducer",
+    "linear-module",
+];
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -34,17 +41,35 @@ pub(crate) fn build_coverage_records(
                 id: seed.id.clone(),
                 chapter: seed.chapter.clone(),
                 implementation_shape: seed.implementation_shape.clone(),
-                status: if page_numbers.is_empty() {
-                    "planned"
-                } else {
-                    "partial"
-                }
-                .to_string(),
-                source_page_range: compact_pages(&page_numbers),
+                status: coverage_status(&seed.id, !page_numbers.is_empty()).to_string(),
+                source_page_range: phase4_source_page(&seed.id)
+                    .map(ToString::to_string)
+                    .or_else(|| compact_pages(&page_numbers)),
                 notes: format!("要求：{}；种子来源：{}", seed.requirement, seed.source),
             }
         })
         .collect()
+}
+
+pub(crate) fn coverage_status(id: &str, has_pages: bool) -> &'static str {
+    if PHASE4_DONE_IDS.contains(&id) {
+        "done"
+    } else if has_pages {
+        "partial"
+    } else {
+        "planned"
+    }
+}
+
+pub(crate) fn phase4_source_page(id: &str) -> Option<&'static str> {
+    match id {
+        "motor" => Some("PDF P4 / 文档页 1"),
+        "ball-screw" => Some("PDF P25 / 文档页 22"),
+        "timing-belt" => Some("PDF P34 / 文档页 31"),
+        "reducer" => Some("PDF P54 / 文档页 51"),
+        "linear-module" => Some("PDF P57 / 文档页 54"),
+        _ => None,
+    }
 }
 
 pub(super) fn matching_pages(seed: &CoverageSeed, pages: &[PdfPageText]) -> Vec<u32> {
