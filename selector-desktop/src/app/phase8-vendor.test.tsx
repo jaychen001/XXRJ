@@ -63,7 +63,7 @@ describe("Phase 8 vendor library", () => {
     await user.click(screen.getByRole("button", { name: /匹配型号/ }));
 
     expect(await screen.findByText("匹配到 2 个候选型号")).toBeInTheDocument();
-    expect(screen.getByText("SV-400")).toBeInTheDocument();
+    expect(screen.getAllByText("SV-400").length).toBeGreaterThan(0);
     await waitFor(() => {
       expect(invokeMock).toHaveBeenCalledWith(
         "recommend_vendor_models",

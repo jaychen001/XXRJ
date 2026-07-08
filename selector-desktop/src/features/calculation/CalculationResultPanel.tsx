@@ -1,4 +1,7 @@
+import { useEffect, useState } from "react";
 import type { CalculationRequest, CalculationResult } from "../../domain/calculation";
+import type { RecommendationCandidate } from "../../domain/vendor";
+import { ReportExportDialog } from "../reports/ReportExportDialog";
 import { RecommendationPanel } from "../vendor/RecommendationPanel";
 
 interface CalculationResultPanelProps {
@@ -22,6 +25,14 @@ export function CalculationResultPanel({
   onNotesChange,
   onSaveCase,
 }: CalculationResultPanelProps) {
+  const [recommendationCandidates, setRecommendationCandidates] = useState<
+    RecommendationCandidate[]
+  >([]);
+
+  useEffect(() => {
+    setRecommendationCandidates([]);
+  }, [result?.moduleId, result?.summary]);
+
   if (!result) {
     return (
       <section className="result-panel result-panel--empty">
@@ -57,6 +68,15 @@ export function CalculationResultPanel({
         moduleId={result.moduleId}
         componentType={null}
         requirements={result.requirements}
+        onCandidatesChange={setRecommendationCandidates}
+      />
+
+      <ReportExportDialog
+        caseName={caseName}
+        notes={notes}
+        request={request}
+        result={result}
+        candidates={recommendationCandidates}
       />
 
       <div className="result-panel__split">

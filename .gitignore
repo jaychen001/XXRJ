@@ -25,8 +25,8 @@ selector-desktop/src-tauri/gen/
 *.sqlite
 *.sqlite3
 *.log
-reports/
-exports/
+/reports/
+/exports/
 .codex/tmp-pydeps/
 
 # OS / editor noise

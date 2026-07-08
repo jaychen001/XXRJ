@@ -4,6 +4,8 @@ mod engine;
 mod knowledge;
 mod modules;
 mod pdf;
+mod qa;
+mod report;
 mod vendor;
 
 fn main() {
@@ -32,6 +34,10 @@ fn main() {
             pdf::root_note_ingest::list_recent_knowledge_entries,
             pdf::root_note_ingest::search_knowledge_entries,
             pdf::root_note_ingest::update_parameter_candidate_status,
+            qa::get_qa_coverage_audit,
+            report::export_calculation_report,
+            report::export_case_report,
+            report::list_report_exports,
             vendor::confirm_vendor_import,
             vendor::delete_vendor_library,
             vendor::list_vendor_libraries,

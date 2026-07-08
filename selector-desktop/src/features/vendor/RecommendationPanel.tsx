@@ -9,12 +9,14 @@ interface RecommendationPanelProps {
   moduleId: string;
   componentType: string | null;
   requirements: RequirementParameter[];
+  onCandidatesChange?: (candidates: RecommendationCandidate[]) => void;
 }
 
 export function RecommendationPanel({
   moduleId,
   componentType,
   requirements,
+  onCandidatesChange,
 }: RecommendationPanelProps) {
   const [candidates, setCandidates] = useState<RecommendationCandidate[]>([]);
   const [status, setStatus] = useState("尚未匹配厂家型号");
@@ -31,6 +33,7 @@ export function RecommendationPanel({
         limit: 8,
       });
       setCandidates(records);
+      onCandidatesChange?.(records);
       setStatus(records.length > 0 ? `匹配到 ${records.length} 个候选型号` : "没有匹配到候选型号");
     } catch (error: unknown) {
       setStatus(error instanceof Error ? error.message : String(error));

@@ -55,6 +55,7 @@ export function setupAppInvokeMock(invokeMock: InvokeMock) {
     vendorModel("vendor-model-1", "vendor-lib-1", "SV-400", 0.5, 3000),
     vendorModel("vendor-model-2", "vendor-lib-1", "SV-750", 0.9, 3000),
   ];
+  let reportExports: ReturnType<typeof reportExportRecord>[] = [];
 
   invokeMock.mockImplementation((command, args) => {
     if (command === "get_database_health") {
@@ -203,6 +204,27 @@ export function setupAppInvokeMock(invokeMock: InvokeMock) {
     }
     if (command === "recommend_vendor_models") {
       return Promise.resolve(vendorModels.slice(0, 2).map(recommendationCandidate));
+    }
+    if (command === "export_calculation_report") {
+      const request = getMockObjectArg(args, "request");
+      const record = reportExportRecord("report-current", getMockStringField(request, "format"), getMockStringField(request, "outputPath"));
+      return Promise.resolve(record);
+    }
+    if (command === "export_case_report") {
+      const request = getMockObjectArg(args, "request");
+      const record = reportExportRecord(
+        `report-${reportExports.length + 1}`,
+        getMockStringField(request, "format"),
+        getMockStringField(request, "outputPath"),
+      );
+      reportExports = [record, ...reportExports];
+      return Promise.resolve(record);
+    }
+    if (command === "list_report_exports") {
+      return Promise.resolve(reportExports);
+    }
+    if (command === "get_qa_coverage_audit") {
+      return Promise.resolve(qaCoverageAudit());
     }
     return Promise.resolve(null);
   });
@@ -369,6 +391,50 @@ function recommendationCandidate(model: ReturnType<typeof vendorModel>) {
       },
     ],
     failedRules: [],
+  };
+}
+
+function reportExportRecord(id: string, format: string, path: string) {
+  return {
+    id,
+    caseId: id === "report-current" ? null : "case-1",
+    runId: id === "report-current" ? null : "run-1",
+    format: format || "pdf",
+    path: path || "selector-report.pdf",
+    exportedAt: "2026-07-08 11:30:00",
+  };
+}
+
+function qaCoverageAudit() {
+  return {
+    status: "pass",
+    totalChapters: 23,
+    doneChapters: 23,
+    missingChapters: [],
+    checks: [
+      {
+        label: "PDF 23 章覆盖",
+        passed: true,
+        detail: "已完成 23/23 章",
+      },
+      {
+        label: "报告导出能力",
+        passed: true,
+        detail: "PDF 与 Excel 导出命令已注册",
+      },
+      {
+        label: "来源页码追溯",
+        passed: true,
+        detail: "每章都有实现来源页",
+      },
+    ],
+    items: coverageRecords.map((record) => ({
+      id: record.id,
+      chapter: record.chapter,
+      status: "done",
+      sourcePage: record.sourcePageRange,
+      implementationShape: record.implementationShape,
+    })),
   };
 }
 

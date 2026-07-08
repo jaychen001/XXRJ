@@ -97,7 +97,7 @@ export function CoverageMatrixPage({
       <div className="coverage-summary" aria-label="覆盖摘要">
         <SummaryMetric label="章节总数" value={String(total)} />
         <SummaryMetric label="已实现" value={String(completed)} />
-        <SummaryMetric label="当前阶段" value="Phase 7" />
+        <SummaryMetric label="当前阶段" value="Phase 9" />
         <SummaryMetric label="最近刷新" value={formatRefreshTime(lastRefreshedAt)} />
       </div>
 

@@ -8,6 +8,8 @@ import { CaseLibraryPage } from "../features/cases/CaseLibraryPage";
 import { CoverageMatrixPage } from "../features/coverage/CoverageMatrixPage";
 import { KnowledgeSearchPage } from "../features/knowledge/KnowledgeSearchPage";
 import { ParameterCandidatePage } from "../features/parameters/ParameterCandidatePage";
+import { QaCoveragePage } from "../features/qa/QaCoveragePage";
+import { ReportExportPage } from "../features/reports/ReportExportPage";
 import { VendorLibraryPage } from "../features/vendor/VendorLibraryPage";
 import { getPdfCoverageItems, ingestRootPdfNote } from "../shared/api/knowledge";
 import { AppShell } from "../shared/ui/AppShell";
@@ -137,6 +139,10 @@ export function App() {
           <CaseLibraryPage onOpenCaseForCalculation={handleOpenCaseForCalculation} />
         ) : activeRoute === "vendor" ? (
           <VendorLibraryPage />
+        ) : activeRoute === "reports" ? (
+          <ReportExportPage />
+        ) : activeRoute === "qa" ? (
+          <QaCoveragePage />
         ) : (
           <PlaceholderPage routeId={activeRoute} />
         )}
