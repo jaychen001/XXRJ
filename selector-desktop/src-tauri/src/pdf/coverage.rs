@@ -18,6 +18,12 @@ const IMPLEMENTED_CHAPTER_IDS: &[&str] = &[
     "linear-module",
     "cam-indexer",
     "brake-clutch",
+    "pneumatic-actuator",
+    "pneumatic-control",
+    "linear-guide",
+    "linear-bearing",
+    "rolling-bearing",
+    "coupling",
 ];
 
 #[derive(Debug, Deserialize)]
@@ -78,6 +84,12 @@ pub(crate) fn implemented_source_page(id: &str) -> Option<&'static str> {
         "linear-module" => Some("PDF P57 / 文档页 54"),
         "cam-indexer" => Some("PDF P59 / 文档页 56"),
         "brake-clutch" => Some("PDF P65 / 文档页 62"),
+        "pneumatic-actuator" => Some("PDF P69 / 文档页 66"),
+        "pneumatic-control" => Some("PDF P88 / 文档页 85"),
+        "linear-guide" => Some("PDF P103 / 文档页 100"),
+        "linear-bearing" => Some("PDF P104 / 文档页 101"),
+        "rolling-bearing" => Some("PDF P109 / 文档页 106"),
+        "coupling" => Some("PDF P116 / 文档页 113"),
         _ => None,
     }
 }

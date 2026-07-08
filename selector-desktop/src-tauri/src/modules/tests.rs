@@ -5,6 +5,7 @@ use crate::engine::models::{CalculationRequest, FieldInput};
 const DRIVE_CASES_JSON: &str = include_str!("fixtures/drive_cases.json");
 const MECHANICAL_TRANSMISSION_CASES_JSON: &str =
     include_str!("fixtures/mechanical_transmission_cases.json");
+const PNEUMATIC_SUPPORT_CASES_JSON: &str = include_str!("fixtures/pneumatic_support_cases.json");
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -29,6 +30,11 @@ fn phase5_mechanical_fixtures_return_required_process_and_sources() {
         MECHANICAL_TRANSMISSION_CASES_JSON,
         "phase5 module implemented",
     );
+}
+
+#[test]
+fn phase6_pneumatic_support_fixtures_return_required_process_and_sources() {
+    assert_fixtures(PNEUMATIC_SUPPORT_CASES_JSON, "phase6 module implemented");
 }
 
 fn assert_fixtures(json: &str, implementation_message: &str) {

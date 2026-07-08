@@ -3,6 +3,7 @@ import { ArrowRight, DatabaseZap } from "lucide-react";
 import type { CoverageItem, CoverageStatus } from "../../domain/coverage";
 import { DriveModulePage } from "../modules/DriveModulePage";
 import { MechanicalTransmissionPage } from "../modules/MechanicalTransmissionPage";
+import { PneumaticSupportPage } from "../modules/PneumaticSupportPage";
 import { RiskBadge, type RiskTone } from "../../shared/ui/RiskBadge";
 import "./coverage-matrix-page.css";
 
@@ -95,7 +96,7 @@ export function CoverageMatrixPage({
       <div className="coverage-summary" aria-label="覆盖摘要">
         <SummaryMetric label="章节总数" value={String(total)} />
         <SummaryMetric label="已实现" value={String(completed)} />
-        <SummaryMetric label="当前阶段" value="Phase 5" />
+        <SummaryMetric label="当前阶段" value="Phase 6" />
         <SummaryMetric label="最近刷新" value={formatRefreshTime(lastRefreshedAt)} />
       </div>
 
@@ -191,6 +192,8 @@ export function CoverageMatrixPage({
           </p>
           {isMechanicalTransmission(selectedItem.id) ? (
             <MechanicalTransmissionPage item={selectedItem} />
+          ) : isPneumaticSupport(selectedItem.id) ? (
+            <PneumaticSupportPage item={selectedItem} />
           ) : (
             <DriveModulePage item={selectedItem} />
           )}
@@ -202,6 +205,17 @@ export function CoverageMatrixPage({
 
 function isMechanicalTransmission(itemId: string): boolean {
   return ["v-belt", "gear", "chain", "cam-indexer", "brake-clutch"].includes(itemId);
+}
+
+function isPneumaticSupport(itemId: string): boolean {
+  return [
+    "pneumatic-actuator",
+    "pneumatic-control",
+    "linear-guide",
+    "linear-bearing",
+    "rolling-bearing",
+    "coupling",
+  ].includes(itemId);
 }
 
 interface SummaryMetricProps {

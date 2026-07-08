@@ -4,6 +4,10 @@ import type {
   ModuleDefinition,
 } from "../domain/calculation";
 import { mechanicalModules, mechanicalResultForModule } from "./app-mechanical-test-data";
+import {
+  pneumaticSupportModules,
+  pneumaticSupportResultForModule,
+} from "./app-pneumatic-support-test-data";
 
 export const calculationResult = {
   moduleId: "timing-belt-basic",
@@ -97,9 +101,7 @@ export const calculationModules: ModuleDefinition[] = [
     field("motorInertia", "电机转子惯量", "kg·m²", 0.00002, "PDF P4 / 文档页 1 / 电机篇 / 伺服步进"),
     field("encoderResolution", "编码器分辨率", "pulse/rev", 10000, "PDF P4 / 文档页 1 / 电机篇 / 伺服步进"),
   ]),
-  plannedModule("cylinder", "气缸", "气动执行元件"),
-  plannedModule("vacuum", "真空吸附", "气动执行元件"),
-  plannedModule("solenoid-valve", "电磁阀", "气动控制（调速阀）"),
+  ...pneumaticSupportModules,
 ];
 
 export const initialCaseRecord = {
@@ -118,6 +120,10 @@ export function calculationResultForModule(moduleId: string): CalculationResult 
   const mechanicalResult = mechanicalResultForModule(moduleId);
   if (mechanicalResult) {
     return mechanicalResult;
+  }
+  const pneumaticSupportResult = pneumaticSupportResultForModule(moduleId);
+  if (pneumaticSupportResult) {
+    return pneumaticSupportResult;
   }
   return moduleId === "ball-screw-servo" ? ballScrewResult : calculationResult;
 }
@@ -182,18 +188,6 @@ function field(
     defaultValue,
     helper: label,
     source,
-  };
-}
-
-function plannedModule(id: string, name: string, sourceChapter: string): ModuleDefinition {
-  return {
-    id,
-    name,
-    category: "规划",
-    description: "后续章节包实现",
-    sourceChapter,
-    sourcePage: `根目录 PDF / ${sourceChapter}`,
-    fields: [],
   };
 }
 
