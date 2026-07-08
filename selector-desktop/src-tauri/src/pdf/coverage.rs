@@ -24,6 +24,13 @@ const IMPLEMENTED_CHAPTER_IDS: &[&str] = &[
     "linear-bearing",
     "rolling-bearing",
     "coupling",
+    "robot",
+    "cable-chain",
+    "sensor",
+    "material",
+    "machining",
+    "heat-surface",
+    "hardware",
 ];
 
 #[derive(Debug, Deserialize)]
@@ -90,6 +97,13 @@ pub(crate) fn implemented_source_page(id: &str) -> Option<&'static str> {
         "linear-bearing" => Some("PDF P104 / 文档页 101"),
         "rolling-bearing" => Some("PDF P109 / 文档页 106"),
         "coupling" => Some("PDF P116 / 文档页 113"),
+        "robot" => Some("PDF P67 / 文档页 64"),
+        "cable-chain" => Some("PDF P121 / 文档页 118"),
+        "sensor" => Some("PDF P123 / 文档页 120"),
+        "material" => Some("PDF P135 / 文档页 132"),
+        "machining" => Some("PDF P139 / 文档页 136"),
+        "heat-surface" => Some("PDF P141 / 文档页 138"),
+        "hardware" => Some("PDF P146 / 文档页 143"),
         _ => None,
     }
 }

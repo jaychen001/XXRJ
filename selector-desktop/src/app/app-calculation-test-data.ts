@@ -8,6 +8,7 @@ import {
   pneumaticSupportModules,
   pneumaticSupportResultForModule,
 } from "./app-pneumatic-support-test-data";
+import { ruleModules, ruleResultForModule } from "./app-rule-test-data";
 
 export const calculationResult = {
   moduleId: "timing-belt-basic",
@@ -102,6 +103,7 @@ export const calculationModules: ModuleDefinition[] = [
     field("encoderResolution", "编码器分辨率", "pulse/rev", 10000, "PDF P4 / 文档页 1 / 电机篇 / 伺服步进"),
   ]),
   ...pneumaticSupportModules,
+  ...ruleModules,
 ];
 
 export const initialCaseRecord = {
@@ -124,6 +126,10 @@ export function calculationResultForModule(moduleId: string): CalculationResult 
   const pneumaticSupportResult = pneumaticSupportResultForModule(moduleId);
   if (pneumaticSupportResult) {
     return pneumaticSupportResult;
+  }
+  const ruleResult = ruleResultForModule(moduleId);
+  if (ruleResult) {
+    return ruleResult;
   }
   return moduleId === "ball-screw-servo" ? ballScrewResult : calculationResult;
 }

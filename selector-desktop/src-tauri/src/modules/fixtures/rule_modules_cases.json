@@ -1,0 +1,107 @@
+[
+  {
+    "name": "机器人规则例题",
+    "moduleId": "robot-rule-selector",
+    "safetyFactor": 1.5,
+    "safetyFactorConfirmed": true,
+    "fields": [
+      { "id": "payload", "value": 5.0, "unit": "kg" },
+      { "id": "reach", "value": 600.0, "unit": "mm" },
+      { "id": "cycleTime", "value": 2.0, "unit": "s" },
+      { "id": "precision", "value": 0.05, "unit": "mm" },
+      { "id": "applicationCode", "value": 1.0, "unit": "code" }
+    ],
+    "expectedStepLabels": ["问题1 负载余量", "问题2 臂展", "问题3 节拍", "问题4 精度"],
+    "expectedRequirementIds": ["designPayload", "reach", "cycleTime"]
+  },
+  {
+    "name": "拖链规则例题",
+    "moduleId": "cable-chain-rule-selector",
+    "safetyFactor": 1.5,
+    "safetyFactorConfirmed": true,
+    "fields": [
+      { "id": "travel", "value": 800.0, "unit": "mm" },
+      { "id": "bendRadius", "value": 75.0, "unit": "mm" },
+      { "id": "cableCount", "value": 8.0, "unit": "pcs" },
+      { "id": "fillRate", "value": 0.5, "unit": "ratio" },
+      { "id": "speed", "value": 500.0, "unit": "mm/s" }
+    ],
+    "expectedStepLabels": ["问题1 行程", "问题2 弯曲半径", "问题3 填充余量"],
+    "expectedRequirementIds": ["installLength", "bendRadius", "fillMargin"]
+  },
+  {
+    "name": "传感器规则例题",
+    "moduleId": "sensor-rule-selector",
+    "safetyFactor": 1.5,
+    "safetyFactorConfirmed": true,
+    "fields": [
+      { "id": "objectCode", "value": 1.0, "unit": "code" },
+      { "id": "detectDistance", "value": 20.0, "unit": "mm" },
+      { "id": "responseTime", "value": 10.0, "unit": "ms" },
+      { "id": "environmentCode", "value": 1.0, "unit": "code" },
+      { "id": "spaceLimit", "value": 30.0, "unit": "mm" }
+    ],
+    "expectedStepLabels": ["问题1 检测对象", "问题2 检测距离", "问题3 响应时间"],
+    "expectedRequirementIds": ["detectDistance", "responseTime", "spaceLimit"]
+  },
+  {
+    "name": "材料规则例题",
+    "moduleId": "material-rule-selector",
+    "safetyFactor": 1.5,
+    "safetyFactorConfirmed": true,
+    "fields": [
+      { "id": "strengthLevel", "value": 300.0, "unit": "MPa" },
+      { "id": "wearDemand", "value": 2.0, "unit": "score" },
+      { "id": "corrosionDemand", "value": 1.0, "unit": "score" },
+      { "id": "weightSensitive", "value": 1.0, "unit": "score" },
+      { "id": "foodGradeDemand", "value": 0.0, "unit": "score" }
+    ],
+    "expectedStepLabels": ["问题1 强度", "问题2 耐磨", "问题3 耐腐蚀"],
+    "expectedRequirementIds": ["designStrength", "wearDemand", "corrosionDemand"]
+  },
+  {
+    "name": "机加工规则例题",
+    "moduleId": "machining-rule-selector",
+    "safetyFactor": 1.5,
+    "safetyFactorConfirmed": true,
+    "fields": [
+      { "id": "tolerance", "value": 0.05, "unit": "mm" },
+      { "id": "batchQty", "value": 5.0, "unit": "pcs" },
+      { "id": "hardness", "value": 180.0, "unit": "HB" },
+      { "id": "complexity", "value": 1.0, "unit": "score" },
+      { "id": "surfaceDemand", "value": 1.0, "unit": "score" }
+    ],
+    "expectedStepLabels": ["问题1 公差", "问题2 批量", "问题3 硬度"],
+    "expectedRequirementIds": ["precisionIndex", "batchQty", "hardness"]
+  },
+  {
+    "name": "热处理表面处理规则例题",
+    "moduleId": "heat-surface-rule-selector",
+    "safetyFactor": 1.5,
+    "safetyFactorConfirmed": true,
+    "fields": [
+      { "id": "hardnessTarget", "value": 35.0, "unit": "HRC" },
+      { "id": "wearDemand", "value": 1.0, "unit": "score" },
+      { "id": "corrosionDemand", "value": 1.0, "unit": "score" },
+      { "id": "appearanceDemand", "value": 1.0, "unit": "score" },
+      { "id": "deformationRisk", "value": 1.0, "unit": "score" }
+    ],
+    "expectedStepLabels": ["问题1 硬度", "问题2 耐磨", "问题3 防腐"],
+    "expectedRequirementIds": ["processScore", "hardnessTarget", "corrosionDemand"]
+  },
+  {
+    "name": "五金件规则例题",
+    "moduleId": "hardware-rule-selector",
+    "safetyFactor": 1.5,
+    "safetyFactorConfirmed": true,
+    "fields": [
+      { "id": "load", "value": 500.0, "unit": "N" },
+      { "id": "vibrationLevel", "value": 1.0, "unit": "score" },
+      { "id": "adjustFrequency", "value": 1.0, "unit": "score" },
+      { "id": "spaceLimit", "value": 20.0, "unit": "mm" },
+      { "id": "disassemblyNeed", "value": 1.0, "unit": "score" }
+    ],
+    "expectedStepLabels": ["问题1 设计载荷", "问题2 振动等级", "问题3 调节频率"],
+    "expectedRequirementIds": ["designLoad", "spaceLimit", "disassemblyNeed"]
+  }
+]

@@ -6,6 +6,7 @@ const DRIVE_CASES_JSON: &str = include_str!("fixtures/drive_cases.json");
 const MECHANICAL_TRANSMISSION_CASES_JSON: &str =
     include_str!("fixtures/mechanical_transmission_cases.json");
 const PNEUMATIC_SUPPORT_CASES_JSON: &str = include_str!("fixtures/pneumatic_support_cases.json");
+const RULE_MODULE_CASES_JSON: &str = include_str!("fixtures/rule_modules_cases.json");
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -21,7 +22,7 @@ struct FixtureCase {
 
 #[test]
 fn phase4_drive_fixtures_return_required_process_and_sources() {
-    assert_fixtures(DRIVE_CASES_JSON, "phase4 module implemented");
+    assert_fixtures(DRIVE_CASES_JSON, "phase4 module implemented", 1);
 }
 
 #[test]
@@ -29,15 +30,21 @@ fn phase5_mechanical_fixtures_return_required_process_and_sources() {
     assert_fixtures(
         MECHANICAL_TRANSMISSION_CASES_JSON,
         "phase5 module implemented",
+        1,
     );
 }
 
 #[test]
 fn phase6_pneumatic_support_fixtures_return_required_process_and_sources() {
-    assert_fixtures(PNEUMATIC_SUPPORT_CASES_JSON, "phase6 module implemented");
+    assert_fixtures(PNEUMATIC_SUPPORT_CASES_JSON, "phase6 module implemented", 1);
 }
 
-fn assert_fixtures(json: &str, implementation_message: &str) {
+#[test]
+fn phase7_rule_module_fixtures_return_required_process_and_sources() {
+    assert_fixtures(RULE_MODULE_CASES_JSON, "phase7 module implemented", 3);
+}
+
+fn assert_fixtures(json: &str, implementation_message: &str, min_rule_count: usize) {
     let fixtures: Vec<FixtureCase> = serde_json::from_str(json).expect("fixture json");
 
     for fixture in fixtures {
@@ -73,6 +80,11 @@ fn assert_fixtures(json: &str, implementation_message: &str) {
         assert!(
             !result.source_pages.is_empty(),
             "{} missing source",
+            fixture.name
+        );
+        assert!(
+            result.rules.len() >= min_rule_count,
+            "{} missing rule decisions",
             fixture.name
         );
         assert_eq!(
