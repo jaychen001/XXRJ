@@ -1,21 +1,66 @@
 # Development Plan — 非标自动化选型计算工具
 
 > 本文件记录项目的开发阶段划分、当前进度和剩余工作。
-> 新 session 启动时应首先阅读 `Product-Spec.md`、`Design-Brief.md` 和本文件，确认范围仍然是“根目录 PDF 内所有选型内容做全”。
+> 新 session 启动时应首先阅读 `Product-Spec.md`、`Design-Brief.md` 和本文件，优先执行 `Product-Spec.md` 的 2026-07-08 用户测试修正。
+
+---
+
+## 2026-07-08 方向纠偏
+
+用户测试后确认：第一版不是给人看 PDF 覆盖和知识追溯的工具，而是给机械设计师日常快速选型计算的中文离线计算器。旧 Phase 中的 PDF 覆盖矩阵、QA 覆盖检查、知识检索、内部参数库、独立报告导出页全部从用户可见范围移除。
+
+当前优先级：
+
+1. 主界面只保留“选型计算”入口。
+2. 计算完成后在结果页直接导出 PDF 或 Excel 报告。
+3. 前端所有可见文案中文化，删除无必要英文、Phase、QA、PDF、知识库、覆盖矩阵、内部参数库等开发用语。
+4. 计算结果只显示公式、代入值、中间值、结论和风险，不显示来源页码或任何 PDF 相关痕迹。
+5. 后续公式重构必须按“设计师实际已知参数”组织输入项，并用公开工程公式和厂家技术资料复判，不再照搬 PDF 目录。
+6. UI 由用户自行设计；收到设计稿前只维护可用的临时中文界面，不继续花时间美化旧工作台。
+
+## Phase 10: 去 PDF 化与用户测试问题修复
+
+**交付内容**：
+- 删除用户可见导航中的 PDF 覆盖矩阵、QA 覆盖检查、知识检索、内部参数库、独立报告导出和厂家样本库入口。
+- 保留选型计算主流程：模块搜索 -> 参数输入 -> 计算 -> 结果过程 -> 当前结果导出报告。
+- 报告导出嵌入计算结果页，支持 PDF 和 Excel。
+- 计算结果和报告内容删除来源页码、资料名、PDF 相关字段。
+- 自动测试改为验证新产品边界，防止旧页面入口回归。
+- 新增 UI 设计交接文档，告诉用户如何提供自定义界面设计稿。
+- 新增公式调研记录文档，后续按产品目录逐项重构参数输入和公式。
+
+**关键文件**：
+- `selector-desktop/src/app/routes.tsx`
+- `selector-desktop/src/app/App.tsx`
+- `selector-desktop/src/shared/ui/AppShell.tsx`
+- `selector-desktop/src/features/calculation/CalculationPage.tsx`
+- `selector-desktop/src/features/calculation/CalculationResultPanel.tsx`
+- `selector-desktop/src/features/reports/ReportExportDialog.tsx`
+- `selector-desktop/src-tauri/src/report/content.rs`
+- `selector-desktop/src/app/*.test.tsx`
+- `UI-DESIGN-HANDOFF.md`
+- `FORMULA-RESEARCH.md`
+
+**验收标准**：
+- 应用首屏只能看到“选型计算”主入口。
+- 页面上不出现 PDF 覆盖矩阵、QA 覆盖检查、知识检索、内部参数库、独立报告导出入口。
+- 完成一次计算后，结果页能直接导出 PDF 或 Excel 报告。
+- 结果页和报告模板不展示 PDF 页码或资料来源痕迹。
+- `pnpm typecheck`、`pnpm test`、Rust 测试和构建验证通过。
 
 ---
 
 ## 规划结论
 
-第一版以 `Product-Spec.md` 为准：覆盖根目录 PDF 的 23 个章节。实现方式分三类：
+第一版以 `Product-Spec.md` 为准：覆盖既定选型目录中的产品类型，但用户可见产品不暴露 PDF 来源。实现方式分三类：
 
 - 有公式、例题、参数计算的内容做成计算向导。
 - 只有类型选择、适用场景、经验规则的内容做成规则选型向导。
-- 纯说明、图例、定义类内容进入知识引用和来源页码追溯。
+- 纯说明、图例、定义类内容只作为内部开发参考，不进入第一版主界面。
 
 代码目录统一使用 `selector-desktop/`，避免中文路径影响 Node、Rust、Tauri、打包工具。
 
-已有 `Design-Brief.md`，开发阶段以它作为 UI 源文档：采用安静、密集、工程工作台界面；左侧 PDF 23 章模块/章节导航，中间表单与规则，右侧过程、风险、字段来源和 PDF 页码追溯。没有设计稿时，不自由发挥，以 `Design-Brief.md` 的页面、组件、视觉 token 和交互规则为准。
+已有 `Design-Brief.md`，但用户已明确要自行设计 UI。收到用户设计稿后，以设计稿为 UI 事实来源；收到设计稿前只保留干净可用的中文临时界面，不继续扩展旧三栏 PDF 工作台。
 
 ---
 

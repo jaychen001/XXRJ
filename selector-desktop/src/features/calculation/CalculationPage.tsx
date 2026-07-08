@@ -9,10 +9,7 @@ import type {
 import {
   isFieldError,
   listCalculationModules,
-  rerunCalculationCaseWithRequest,
   runCalculation,
-  saveCalculationCase,
-  updateCalculationCase,
 } from "../../shared/api/calculation";
 import { CalculationFormPage } from "./CalculationFormPage";
 import { CalculationResultPanel } from "./CalculationResultPanel";
@@ -34,12 +31,10 @@ export function CalculationPage({ draft }: CalculationPageProps) {
   const [fieldError, setFieldError] = useState<FieldError | null>(null);
   const [result, setResult] = useState<CalculationResult | null>(null);
   const [lastRequest, setLastRequest] = useState<CalculationRequest | null>(null);
-  const [activeCaseId, setActiveCaseId] = useState("");
   const [loadedDraftId, setLoadedDraftId] = useState("");
-  const [caseName, setCaseName] = useState("同步带计算案例");
+  const [caseName, setCaseName] = useState("选型计算案例");
   const [notes, setNotes] = useState("");
-  const [status, setStatus] = useState("读取模块中");
-  const [saveStatus, setSaveStatus] = useState("未保存");
+  const [status, setStatus] = useState("正在读取计算模块");
   const [isBusy, setIsBusy] = useState(false);
   const selectedModule = useMemo(
     () => modules.find((module) => module.id === selectedModuleId) ?? null,
@@ -65,11 +60,9 @@ export function CalculationPage({ draft }: CalculationPageProps) {
     setSafetyFactorConfirmed(draft.request.safetyFactorConfirmed);
     setCaseName(draft.name);
     setNotes(draft.notes);
-    setActiveCaseId(draft.caseId);
     setLastRequest(null);
     setResult(null);
     setFieldError(null);
-    setSaveStatus("副本参数已载入");
     setStatus(`正在修改：${draft.name}`);
     setLoadedDraftId(draft.caseId);
   }, [draft, loadedDraftId, modules]);
@@ -84,7 +77,7 @@ export function CalculationPage({ draft }: CalculationPageProps) {
         setValues(defaultValues(firstRunnable));
         setUnits(defaultUnits(firstRunnable));
       }
-      setStatus(`模块 ${records.length} 个`);
+      setStatus(`已加载 ${records.length} 个计算模块`);
     } catch (error: unknown) {
       setStatus(toErrorMessage(error));
     }
@@ -95,7 +88,6 @@ export function CalculationPage({ draft }: CalculationPageProps) {
     setSelectedModuleId(moduleId);
     setValues(nextModule ? defaultValues(nextModule) : {});
     setUnits(nextModule ? defaultUnits(nextModule) : {});
-    setActiveCaseId("");
     setFieldError(null);
     setResult(null);
   }
@@ -113,7 +105,7 @@ export function CalculationPage({ draft }: CalculationPageProps) {
     if (!safetyFactorConfirmed) {
       const nextError = {
         fieldId: "safetyFactor",
-        message: "安全系数未确认，请输入或确认本次计算使用值",
+        message: "请先输入并确认本次计算使用的安全系数。",
       };
       setFieldError(nextError);
       setStatus(nextError.message);
@@ -128,13 +120,12 @@ export function CalculationPage({ draft }: CalculationPageProps) {
     );
     setIsBusy(true);
     setFieldError(null);
-    setStatus("计算中");
+    setStatus("正在计算");
     try {
       const nextResult = await runCalculation(request);
       setLastRequest(request);
       setResult(nextResult);
       setStatus("计算完成");
-      setSaveStatus("未保存");
     } catch (error: unknown) {
       const nextError = isFieldError(error)
         ? error
@@ -146,25 +137,6 @@ export function CalculationPage({ draft }: CalculationPageProps) {
     }
   }
 
-  async function handleSaveCase() {
-    if (!lastRequest) {
-      return;
-    }
-    setSaveStatus("保存中");
-    try {
-      if (activeCaseId) {
-        await updateCalculationCase({ id: activeCaseId, name: caseName, notes });
-        await rerunCalculationCaseWithRequest(activeCaseId, lastRequest);
-        setSaveStatus("当前案例已更新");
-        return;
-      }
-      await saveCalculationCase({ name: caseName, notes, request: lastRequest });
-      setSaveStatus("案例已保存");
-    } catch (error: unknown) {
-      setSaveStatus(toErrorMessage(error));
-    }
-  }
-
   return (
     <section className="calculation-page" aria-labelledby="calculation-title">
       <div className="calculation-page__header">
@@ -173,13 +145,14 @@ export function CalculationPage({ draft }: CalculationPageProps) {
             选型计算
           </h1>
           <p className="page-subtitle">
-            通用表单、公式步骤、风险提示和安全系数手动确认。
+            选择对象，填写已知工况参数，系统按公式输出过程、结果和风险提示。
           </p>
         </div>
         <span className="calculation-status" role="status">
           {status}
         </span>
       </div>
+
       <div className="calculation-workbench">
         <ModuleListPage
           modules={modules}
@@ -207,15 +180,12 @@ export function CalculationPage({ draft }: CalculationPageProps) {
           onCalculate={() => void handleCalculate()}
         />
       </div>
+
       <CalculationResultPanel
         result={result}
         request={lastRequest}
         caseName={caseName}
         notes={notes}
-        saveStatus={saveStatus}
-        onCaseNameChange={setCaseName}
-        onNotesChange={setNotes}
-        onSaveCase={() => void handleSaveCase()}
       />
     </section>
   );
@@ -241,7 +211,10 @@ function valuesFromRequest(
   );
 }
 
-function unitsFromRequest(module: ModuleDefinition, request: CalculationRequest): Record<string, string> {
+function unitsFromRequest(
+  module: ModuleDefinition,
+  request: CalculationRequest,
+): Record<string, string> {
   const requestUnits = new Map(request.fields.map((field) => [field.id, field.unit]));
   return Object.fromEntries(
     module.fields.map((field) => [field.id, requestUnits.get(field.id) ?? field.unit]),
@@ -258,7 +231,7 @@ function validateRequiredFields(
   }
   return {
     fieldId: emptyField.id,
-    message: `${emptyField.label}不能为空，请输入数值后再计算`,
+    message: `${emptyField.label}不能为空，请输入数值后再计算。`,
   };
 }
 

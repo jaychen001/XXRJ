@@ -1,0 +1,1 @@
+{"timestamp":"2026-07-08T00:00:00+08:00","source":"user-feedback","category":"product-direction","summary":"用户测试反馈要求第一版用户界面去 PDF 化、中文优先，只保留选型计算和结果页内报告导出；删除 PDF 覆盖矩阵、QA 覆盖检查、知识检索、内部参数库等入口；公式按设计师实际已知工况和公开工程资料重构。","status":"queued"}

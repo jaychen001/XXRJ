@@ -44,7 +44,7 @@ export function CalculationFormPage({
   }, [fieldError]);
 
   if (!module) {
-    return <section className="calculation-form">请选择一个计算模块。</section>;
+    return <section className="calculation-form">请选择一个计算对象。</section>;
   }
 
   const hasFormula = module.fields.length > 0;
@@ -60,10 +60,7 @@ export function CalculationFormPage({
         <div className="field-grid">
           {module.fields.map((field) => (
             <label className="unit-field" key={field.id}>
-              <span>
-                {field.label}
-                <small>{field.source}</small>
-              </span>
+              <span>{field.label}</span>
               <div>
                 <input
                   aria-label={field.label}
@@ -93,10 +90,7 @@ export function CalculationFormPage({
             </label>
           ))}
           <label className="unit-field unit-field--safety">
-            <span>
-              安全系数
-              <small>必须手动输入或确认</small>
-            </span>
+            <span>安全系数</span>
             <div>
               <input
                 aria-label="安全系数"
@@ -115,13 +109,13 @@ export function CalculationFormPage({
                 checked={safetyFactorConfirmed}
                 onChange={(event) => onSafetyFactorConfirmedChange(event.target.checked)}
               />
-              <span>我已确认安全系数</span>
+              <span>我已确认本次计算使用的安全系数</span>
             </label>
             {fieldError?.fieldId === "safetyFactor" ? <b>{fieldError.message}</b> : null}
           </label>
         </div>
       ) : (
-        <p className="calculation-form__empty">该模块已列入规划，公式在对应章节包中实现。</p>
+        <p className="calculation-form__empty">这个对象还没有公式，后续会补齐。</p>
       )}
 
       <button

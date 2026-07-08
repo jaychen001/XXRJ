@@ -5,8 +5,7 @@
 
 .calculation-page__header,
 .module-list__header,
-.result-panel header,
-.save-case-bar {
+.result-panel header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -48,8 +47,7 @@
   margin: 0;
 }
 
-.module-list__header input,
-.save-case-bar input {
+.module-list__header input {
   min-width: 0;
   height: 32px;
   padding: 0 var(--space-sm);
@@ -86,8 +84,7 @@
 .unit-field small,
 .unit-field em,
 .calculation-form__warning,
-.result-panel header p,
-.save-case-bar span {
+.result-panel header p {
   color: var(--color-text-secondary);
   font-size: var(--text-caption);
 }
@@ -158,8 +155,7 @@
 .requirement-grid div,
 .formula-steps article,
 .risk-item,
-.rule-item,
-.source-list {
+.rule-item {
   display: grid;
   gap: var(--space-xs);
   padding: var(--space-sm);
@@ -175,9 +171,7 @@
 }
 
 .formula-steps code,
-.formula-steps span,
-.rule-item span,
-.rule-item small {
+.rule-item span {
   font-family: var(--font-mono);
   font-size: var(--text-caption);
 }
@@ -202,6 +196,47 @@
   background: #e8f5ef;
 }
 
-.save-case-bar {
-  justify-content: flex-start;
+.report-export-inline {
+  display: grid;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-background);
+}
+
+.report-export-inline h3,
+.report-export-inline p {
+  margin: 0;
+}
+
+.report-export-inline p,
+.report-export-inline__status {
+  color: var(--color-text-secondary);
+  font-size: var(--text-caption);
+}
+
+.report-export-inline__controls {
+  display: grid;
+  grid-template-columns: 140px minmax(220px, 1fr) auto;
+  gap: var(--space-sm);
+  align-items: end;
+}
+
+.report-export-inline label {
+  display: grid;
+  gap: var(--space-xs);
+  color: var(--color-text-secondary);
+  font-size: var(--text-caption);
+}
+
+.report-export-inline input,
+.report-export-inline select {
+  height: 34px;
+  min-width: 0;
+  padding: 0 var(--space-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-primary);
+  background: var(--color-surface);
 }
