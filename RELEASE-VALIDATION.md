@@ -1,53 +1,53 @@
-# Release Validation
+# 发布验收记录
 
 ## v0.1.0 - 2026-07-08
 
-**Git commit**: `4e93953`
+**对应 Git 提交**：`4e93953`
 
-**Release scope**:
-- Windows desktop offline application.
-- Phase 9 delivery: report export, QA coverage audit, regression runner, Windows package artifacts.
+**本次发布范围**：
+- Windows 桌面离线应用。
+- Phase 9 交付内容：报告导出、QA 覆盖审计、回归样例执行器、Windows 安装包。
 
-## Build Artifacts
+## 打包产物
 
-| Artifact | Size | SHA256 |
+| 产物 | 文件大小 | SHA256 |
 | --- | ---: | --- |
 | `selector-desktop/src-tauri/target/release/bundle/msi/Selector Desktop_0.1.0_x64_en-US.msi` | 6,606,848 bytes | `73DD856DF6C16C6ED403FB697B54672E58BB3AE6A28A61433A4E410A3CB3DD7D` |
 | `selector-desktop/src-tauri/target/release/bundle/nsis/Selector Desktop_0.1.0_x64-setup.exe` | 4,598,562 bytes | `A043CB79CF2B36ACE45F91287EA76520A168F35036EE3DED0310248F05322BC0` |
 
-## Validation Commands
+## 验证命令
 
-All commands below passed on 2026-07-08:
+以下验证均在 2026-07-08 通过。
 
 ```powershell
 cmd /c pnpm.cmd test
 ```
 
-Result: 7 test files passed, 19 tests passed.
+结果：7 个前端测试文件通过，19 条前端测试用例通过。
 
 ```powershell
 cargo test
 ```
 
-Result: 15 tests passed, including `qa::regression_runner::tests::regression_runner_passes_all_fixture_groups`.
+结果：15 条 Rust 后端测试通过，其中包含 `qa::regression_runner::tests::regression_runner_passes_all_fixture_groups`，说明 QA 回归样例执行器已被测试覆盖。
 
 ```powershell
 cmd /c pnpm.cmd package:windows
 ```
 
-Result: MSI and NSIS package artifacts were generated.
+结果：MSI 安装包和 NSIS 安装包均已生成。
 
-## Privacy Audit
+## 隐私审计
 
-Bundle directory checked:
+审计目录：
 
 ```text
 selector-desktop/src-tauri/target/release/bundle
 ```
 
-Checks performed:
-- No `.env`, `.db`, `.sqlite`, credential, key, token, session, or `selector.db` files found in bundle artifacts.
-- No matches for developer paths, user paths, or common API key markers:
+审计结果：
+- 打包产物中未发现 `.env`、`.db`、`.sqlite`、凭据、密钥、令牌、会话文件或 `selector.db`。
+- 未发现开发路径、用户路径或常见 API Key 标记：
   - `D:\codex`
   - `C:\Users`
   - `Users/`
@@ -57,32 +57,32 @@ Checks performed:
   - `ANTHROPIC_API_KEY`
   - `OPENAI_API_KEY`
 
-## Installed Package Smoke Test
+## 安装包冒烟测试
 
-Installer tested:
+测试安装包：
 
 ```text
 selector-desktop/src-tauri/target/release/bundle/nsis/Selector Desktop_0.1.0_x64-setup.exe
 ```
 
-Smoke steps:
-- Silent install into `.codex/release-smoke/install`.
-- Launch installed `selector-desktop.exe`.
-- Confirm process starts and remains running.
-- Confirm local SQLite database initialization.
-- Silent uninstall after smoke test.
+测试步骤：
+- 静默安装到 `.codex/release-smoke/install`。
+- 启动安装后的 `selector-desktop.exe`。
+- 确认应用进程能启动，并在测试窗口期内持续运行。
+- 确认本地 SQLite 数据库能初始化。
+- 测试结束后静默卸载。
 
-Observed result:
-- Installer exit code: `0`.
-- Installed app process started and stayed running for the smoke window.
-- Uninstaller exit code: `0`.
-- Database initialized at `%APPDATA%\com.sckj.selector\selector.db`.
-- Database health: 2 applied migrations, 18 application tables.
+观察结果：
+- 安装器退出码：`0`。
+- 安装后的应用进程能启动，并在冒烟测试窗口期内保持运行。
+- 卸载器退出码：`0`。
+- 数据库初始化位置：`%APPDATA%\com.sckj.selector\selector.db`。
+- 数据库健康状态：已应用 2 个 migration，存在 18 张应用表。
 
-Note: Tauri resolved the app data directory to the normal Windows roaming app data path even when `APPDATA` and `LOCALAPPDATA` were set for the launched process. Future automated smoke tests should add an explicit test-mode data directory hook if strict filesystem isolation is required.
+说明：Tauri 会把应用数据目录解析到 Windows 正常的 Roaming 应用数据路径。即使启动进程时临时设置了 `APPDATA` 和 `LOCALAPPDATA`，本次测试中数据库仍落到了正常的 `%APPDATA%\com.sckj.selector\selector.db`。如果以后要做严格隔离的自动化安装冒烟测试，需要在应用里增加明确的测试数据目录开关。
 
-## Status
+## 结论
 
-Release validation status: **PASS with note**.
+发布验收状态：**通过，有注意事项**。
 
-The installable Windows artifacts are usable for internal trial, with the caveat that unsigned installer warnings may appear because code signing has not been configured.
+当前 Windows 安装包可以用于小组内部试用。注意：目前还没有配置代码签名，所以安装时 Windows 可能会出现未签名软件的安全提示。这个不是功能错误，但正式对外分发前应该补代码签名。
