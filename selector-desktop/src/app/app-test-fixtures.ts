@@ -50,6 +50,11 @@ export function setupAppInvokeMock(invokeMock: InvokeMock) {
   let caseRequests: Record<string, CalculationRequestFixture> = {
     [initialCaseRecord.id]: calculationRequest,
   };
+  let vendorLibraries = [vendorLibraryRecord("vendor-lib-1", "伺服样本库")];
+  let vendorModels = [
+    vendorModel("vendor-model-1", "vendor-lib-1", "SV-400", 0.5, 3000),
+    vendorModel("vendor-model-2", "vendor-lib-1", "SV-750", 0.9, 3000),
+  ];
 
   invokeMock.mockImplementation((command, args) => {
     if (command === "get_database_health") {
@@ -150,6 +155,55 @@ export function setupAppInvokeMock(invokeMock: InvokeMock) {
       caseRecords = caseRecords.filter((item) => item.id !== id);
       return Promise.resolve(true);
     }
+    if (command === "preview_vendor_import") {
+      return Promise.resolve(vendorPreview());
+    }
+    if (command === "confirm_vendor_import") {
+      const request = getMockObjectArg(args, "request");
+      if (!getMockBooleanField(request, "confirmed")) {
+        return Promise.reject(new Error("字段映射未经人工确认"));
+      }
+      const id = `vendor-lib-${vendorLibraries.length + 1}`;
+      const library = vendorLibraryRecord(id, getMockStringField(request, "libraryName") || "导入样本库");
+      vendorLibraries = [library, ...vendorLibraries];
+      vendorModels = [
+        vendorModel(`vendor-model-${vendorModels.length + 1}`, id, "SV-400", 0.5, 3000),
+        vendorModel(`vendor-model-${vendorModels.length + 2}`, id, "SV-750", 0.9, 3000),
+        ...vendorModels,
+      ];
+      return Promise.resolve({
+        library,
+        importedModels: 2,
+        failedRows: 0,
+        jobId: "vendor-import-preview",
+      });
+    }
+    if (command === "list_vendor_libraries") {
+      return Promise.resolve(vendorLibraries);
+    }
+    if (command === "list_vendor_models") {
+      const libraryId = getMockArg(args, "libraryId");
+      return Promise.resolve(
+        libraryId ? vendorModels.filter((item) => item.libraryId === libraryId) : vendorModels,
+      );
+    }
+    if (command === "set_vendor_library_enabled") {
+      const id = getMockArg(args, "id");
+      const enabled = getMockBooleanArg(args, "enabled");
+      vendorLibraries = vendorLibraries.map((item) =>
+        item.id === id ? { ...item, enabled } : item,
+      );
+      return Promise.resolve(vendorLibraries.find((item) => item.id === id) ?? null);
+    }
+    if (command === "delete_vendor_library") {
+      const id = getMockArg(args, "id");
+      vendorLibraries = vendorLibraries.filter((item) => item.id !== id);
+      vendorModels = vendorModels.filter((item) => item.libraryId !== id);
+      return Promise.resolve(true);
+    }
+    if (command === "recommend_vendor_models") {
+      return Promise.resolve(vendorModels.slice(0, 2).map(recommendationCandidate));
+    }
     return Promise.resolve(null);
   });
 }
@@ -160,6 +214,14 @@ function getMockArg(args: unknown, key: string): string {
   }
   const value = (args as Record<string, unknown>)[key];
   return typeof value === "string" ? value : "";
+}
+
+function getMockBooleanArg(args: unknown, key: string): boolean {
+  if (typeof args !== "object" || args === null || Array.isArray(args)) {
+    return false;
+  }
+  const value = (args as Record<string, unknown>)[key];
+  return typeof value === "boolean" ? value : false;
 }
 
 function getMockObjectArg(args: unknown, key: string): Record<string, unknown> {
@@ -176,8 +238,138 @@ function getMockStringField(record: Record<string, unknown>, key: string): strin
   return typeof record[key] === "string" ? record[key] : "";
 }
 
+function getMockBooleanField(record: Record<string, unknown>, key: string): boolean {
+  return typeof record[key] === "boolean" ? record[key] : false;
+}
+
 function getRequestModuleId(args: unknown): string {
   return getMockStringField(getMockObjectArg(args, "request"), "moduleId");
+}
+
+function vendorPreview() {
+  return {
+    jobId: "vendor-import-preview",
+    sourceFile: "D:\\samples\\servo.csv",
+    sourceFormat: "csv",
+    confidence: 0.86,
+    rows: [
+      previewRow(1, "SV-400", 0.5, 3000),
+      previewRow(2, "SV-750", 0.9, 3000),
+    ],
+    failedRows: [],
+    suggestedMappings: [
+      { sourceField: "modelName", targetField: "modelName", unit: null },
+      { sourceField: "额定扭矩(Nm)", targetField: "outputTorque", unit: "Nm" },
+      { sourceField: "额定转速(rpm)", targetField: "requiredSpeed", unit: "rpm" },
+    ],
+    warnings: [],
+  };
+}
+
+function previewRow(rowIndex: number, modelName: string, torque: number, speed: number) {
+  return {
+    rowIndex,
+    modelName,
+    brand: "ACME",
+    series: "SV",
+    sourcePage: null,
+    confidence: 0.86,
+    rawText: `${modelName},${torque},${speed}`,
+    parameters: [
+      parameter("outputTorque", "输出扭矩", torque, "Nm", "额定扭矩(Nm)"),
+      parameter("requiredSpeed", "需求转速", speed, "rpm", "额定转速(rpm)"),
+    ],
+  };
+}
+
+function vendorLibraryRecord(id: string, name: string) {
+  return {
+    id,
+    name,
+    componentType: "伺服/步进电机",
+    sourceFile: "D:\\samples\\servo.csv",
+    sourceFormat: "csv",
+    versionName: "v1",
+    importedAt: "2026-07-08 10:00:00",
+    enabled: true,
+    modelCount: 2,
+    createdAt: "2026-07-08 10:00:00",
+    updatedAt: "2026-07-08 10:00:00",
+  };
+}
+
+function vendorModel(
+  id: string,
+  libraryId: string,
+  modelName: string,
+  torque: number,
+  speed: number,
+) {
+  return {
+    id,
+    libraryId,
+    libraryName: "伺服样本库",
+    componentType: "伺服/步进电机",
+    modelName,
+    brand: "ACME",
+    series: "SV",
+    parameters: [
+      parameter("outputTorque", "输出扭矩", torque, "Nm", "额定扭矩(Nm)"),
+      parameter("requiredSpeed", "需求转速", speed, "rpm", "额定转速(rpm)"),
+    ],
+    normalizedParameters: {
+      outputTorque: {
+        label: "输出扭矩",
+        value: torque,
+        unit: "Nm",
+        sourceField: "额定扭矩(Nm)",
+      },
+      requiredSpeed: {
+        label: "需求转速",
+        value: speed,
+        unit: "rpm",
+        sourceField: "额定转速(rpm)",
+      },
+    },
+    sourcePage: null,
+    enabled: true,
+  };
+}
+
+function parameter(
+  field: string,
+  label: string,
+  value: number,
+  unit: string,
+  sourceField: string,
+) {
+  return { field, label, value, unit, sourceField };
+}
+
+function recommendationCandidate(model: ReturnType<typeof vendorModel>) {
+  return {
+    model,
+    score: model.modelName === "SV-400" ? 1 : 0.8,
+    matchedRules: [
+      {
+        requirementId: "outputTorque",
+        label: "输出扭矩",
+        message: `${model.modelName} 输出扭矩满足`,
+        requiredValue: 0.351,
+        candidateValue: model.normalizedParameters.outputTorque.value,
+        unit: "Nm",
+      },
+      {
+        requirementId: "requiredSpeed",
+        label: "需求转速",
+        message: `${model.modelName} 转速满足`,
+        requiredValue: 300,
+        candidateValue: model.normalizedParameters.requiredSpeed.value,
+        unit: "rpm",
+      },
+    ],
+    failedRules: [],
+  };
 }
 
 function knowledgeSearchResult(query: string) {

@@ -1,4 +1,5 @@
 import type { CalculationRequest, CalculationResult } from "../../domain/calculation";
+import { RecommendationPanel } from "../vendor/RecommendationPanel";
 
 interface CalculationResultPanelProps {
   result: CalculationResult | null;
@@ -51,6 +52,12 @@ export function CalculationResultPanel({
           </div>
         ))}
       </div>
+
+      <RecommendationPanel
+        moduleId={result.moduleId}
+        componentType={null}
+        requirements={result.requirements}
+      />
 
       <div className="result-panel__split">
         <div className="formula-steps">

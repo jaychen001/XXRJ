@@ -4,6 +4,7 @@ mod engine;
 mod knowledge;
 mod modules;
 mod pdf;
+mod vendor;
 
 fn main() {
     tauri::Builder::default()
@@ -30,7 +31,14 @@ fn main() {
             pdf::root_note_ingest::list_parameter_candidates,
             pdf::root_note_ingest::list_recent_knowledge_entries,
             pdf::root_note_ingest::search_knowledge_entries,
-            pdf::root_note_ingest::update_parameter_candidate_status
+            pdf::root_note_ingest::update_parameter_candidate_status,
+            vendor::confirm_vendor_import,
+            vendor::delete_vendor_library,
+            vendor::list_vendor_libraries,
+            vendor::list_vendor_models,
+            vendor::preview_vendor_import,
+            vendor::recommend_vendor_models,
+            vendor::set_vendor_library_enabled
         ])
         .run(tauri::generate_context!())
         .expect("failed to run selector desktop app");

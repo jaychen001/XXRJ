@@ -8,6 +8,7 @@ import { CaseLibraryPage } from "../features/cases/CaseLibraryPage";
 import { CoverageMatrixPage } from "../features/coverage/CoverageMatrixPage";
 import { KnowledgeSearchPage } from "../features/knowledge/KnowledgeSearchPage";
 import { ParameterCandidatePage } from "../features/parameters/ParameterCandidatePage";
+import { VendorLibraryPage } from "../features/vendor/VendorLibraryPage";
 import { getPdfCoverageItems, ingestRootPdfNote } from "../shared/api/knowledge";
 import { AppShell } from "../shared/ui/AppShell";
 import type { DatabaseHealth } from "../shared/ui/TracePanel";
@@ -134,6 +135,8 @@ export function App() {
           <CalculationPage draft={calculationDraft} />
         ) : activeRoute === "cases" ? (
           <CaseLibraryPage onOpenCaseForCalculation={handleOpenCaseForCalculation} />
+        ) : activeRoute === "vendor" ? (
+          <VendorLibraryPage />
         ) : (
           <PlaceholderPage routeId={activeRoute} />
         )}

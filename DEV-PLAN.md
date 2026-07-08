@@ -294,7 +294,7 @@ flowchart TD
 | Tauri 数据库插件 | `@tauri-apps/plugin-sql` | 2.x | SQLite 访问；Rust 侧基于 sqlx |
 | Tauri 文件插件 | `@tauri-apps/plugin-fs` | 2.x | 文件选择、报告保存、PDF/Excel/CSV 访问 |
 | PDF 抽取 | Rust PDF 抽取模块 | 以 `pdf-extract`/`lopdf` 方向实现 | P0 只承诺文本型 PDF 和人工字段映射；扫描 PDF 先提示手动录入 |
-| Excel 读取 | calamine | 0.35.x | Excel/ODS 读取和样本库辅助导入 |
+| Excel 读取 | calamine | 0.36.0 | Excel/ODS 读取和样本库辅助导入 |
 | Excel 写出 | rust_xlsxwriter | 0.96.x | Excel 报告导出 |
 | PDF 报告 | printpdf 或等效 Rust PDF 生成库 | 0.9.x | PDF 报告生成 |
 
