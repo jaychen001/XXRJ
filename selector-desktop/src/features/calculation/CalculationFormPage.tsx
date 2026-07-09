@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { Calculator, ShieldCheck } from "lucide-react";
 import type { ModuleDefinition } from "../../domain/calculation";
 
 interface CalculationFormPageProps {
@@ -51,10 +52,20 @@ export function CalculationFormPage({
 
   return (
     <section className="calculation-form" aria-labelledby="calculation-form-title">
-      <div>
-        <h2 id="calculation-form-title">{module.name}</h2>
-        <p>{module.description}</p>
+      <div className="calculation-form__heading">
+        <div>
+          <span>{module.category}</span>
+          <h2 id="calculation-form-title">{module.name}</h2>
+          <p>{module.description}</p>
+        </div>
+        <strong>{module.fields.length} 项参数</strong>
       </div>
+
+      {fieldError ? (
+        <div className="calculation-form__error" role="alert">
+          {fieldError.message}
+        </div>
+      ) : null}
 
       {hasFormula ? (
         <div className="field-grid">
@@ -89,7 +100,7 @@ export function CalculationFormPage({
               {fieldError?.fieldId === field.id ? <b>{fieldError.message}</b> : null}
             </label>
           ))}
-          <label className="unit-field unit-field--safety">
+          <div className="unit-field unit-field--safety">
             <span>安全系数</span>
             <div>
               <input
@@ -112,20 +123,27 @@ export function CalculationFormPage({
               <span>我已确认本次计算使用的安全系数</span>
             </label>
             {fieldError?.fieldId === "safetyFactor" ? <b>{fieldError.message}</b> : null}
-          </label>
+          </div>
         </div>
       ) : (
         <p className="calculation-form__empty">这个对象还没有公式，后续会补齐。</p>
       )}
 
-      <button
-        className="secondary-button"
-        type="button"
-        disabled={!hasFormula || isBusy}
-        onClick={onCalculate}
-      >
-        {isBusy ? "计算中" : "计算"}
-      </button>
+      <div className="calculation-form__actions">
+        <span className={safetyFactorConfirmed ? "confirm-state confirm-state--ok" : "confirm-state"}>
+          <ShieldCheck size={15} aria-hidden="true" />
+          {safetyFactorConfirmed ? "安全系数已确认" : "安全系数待确认"}
+        </span>
+        <button
+          className="primary-button"
+          type="button"
+          disabled={!hasFormula || isBusy}
+          onClick={onCalculate}
+        >
+          <Calculator size={16} aria-hidden="true" />
+          {isBusy ? "计算中" : "计算"}
+        </button>
+      </div>
       {!safetyFactorConfirmed && hasFormula ? (
         <p className="calculation-form__warning">确认安全系数后才能计算。</p>
       ) : null}

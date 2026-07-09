@@ -40,6 +40,8 @@ export function CalculationPage({ draft }: CalculationPageProps) {
     () => modules.find((module) => module.id === selectedModuleId) ?? null,
     [modules, selectedModuleId],
   );
+  const runnableCount = modules.filter((module) => module.fields.length > 0).length;
+  const categoryCount = new Set(modules.map((module) => module.category)).size;
 
   useEffect(() => {
     void loadModules();
@@ -148,9 +150,33 @@ export function CalculationPage({ draft }: CalculationPageProps) {
             选择对象，填写已知工况参数，系统按公式输出过程、结果和风险提示。
           </p>
         </div>
-        <span className="calculation-status" role="status">
-          {status}
-        </span>
+        <div className="calculation-page__status-group">
+          <span className="calculation-status" role="status">
+            {status}
+          </span>
+          <span className="calculation-status calculation-status--strong">
+            {selectedModule?.name ?? "未选择对象"}
+          </span>
+        </div>
+      </div>
+
+      <div className="calculation-page__summary" aria-label="当前计算工作台状态">
+        <div>
+          <span>计算对象</span>
+          <strong>{modules.length}</strong>
+        </div>
+        <div>
+          <span>可运行公式</span>
+          <strong>{runnableCount}</strong>
+        </div>
+        <div>
+          <span>对象分类</span>
+          <strong>{categoryCount}</strong>
+        </div>
+        <div>
+          <span>安全系数</span>
+          <strong>{safetyFactorConfirmed ? `${safetyFactor} 已确认` : "待确认"}</strong>
+        </div>
       </div>
 
       <div className="calculation-workbench">
@@ -179,14 +205,13 @@ export function CalculationPage({ draft }: CalculationPageProps) {
           onSafetyFactorConfirmedChange={setSafetyFactorConfirmed}
           onCalculate={() => void handleCalculate()}
         />
+        <CalculationResultPanel
+          result={result}
+          request={lastRequest}
+          caseName={caseName}
+          notes={notes}
+        />
       </div>
-
-      <CalculationResultPanel
-        result={result}
-        request={lastRequest}
-        caseName={caseName}
-        notes={notes}
-      />
     </section>
   );
 }

@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { AlertTriangle, Calculator } from "lucide-react";
+import { AlertTriangle, Calculator, HardDrive, ShieldCheck } from "lucide-react";
 import type { AppRoute, AppRouteId } from "../../app/routes";
 import { APP_ROUTES } from "../../app/routes";
 import { RiskBadge } from "./RiskBadge";
@@ -31,7 +31,7 @@ export function AppShell({
           <Calculator size={22} aria-hidden="true" />
           <div>
             <strong>非标选型计算</strong>
-            <span>离线工具</span>
+            <span>机械设计离线工具</span>
           </div>
         </div>
 
@@ -45,13 +45,24 @@ export function AppShell({
             />
           ))}
         </nav>
+
+        <div className="app-shell__sidebar-note" aria-label="应用状态说明">
+          <span>
+            <HardDrive size={15} aria-hidden="true" />
+            本地计算
+          </span>
+          <span>
+            <ShieldCheck size={15} aria-hidden="true" />
+            手动确认安全系数
+          </span>
+        </div>
       </aside>
 
       <div className="app-shell__body">
         <header className="app-shell__topbar">
           <div>
             <strong>工程选型计算器</strong>
-            <span>按已知工况输入，直接得到计算结果、公式过程和报告导出。</span>
+            <span>按已知工况输入，直接得到公式过程、风险判断和报告导出。</span>
           </div>
           <div className="app-shell__status">
             {globalErrorMessage ? (

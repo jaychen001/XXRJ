@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Download } from "lucide-react";
 import type { CalculationRequest, CalculationResult } from "../../domain/calculation";
 import type { RecommendationCandidate } from "../../domain/vendor";
 import { exportCalculationReport } from "../../shared/api/report";
@@ -79,6 +80,7 @@ export function ReportExportDialog({
           />
         </label>
         <button className="primary-button" type="button" onClick={() => void handleExport()}>
+          <Download size={16} aria-hidden="true" />
           导出
         </button>
       </div>

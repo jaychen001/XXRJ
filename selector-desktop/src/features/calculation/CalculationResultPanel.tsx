@@ -1,3 +1,4 @@
+import { AlertTriangle, CheckCircle2, FileText } from "lucide-react";
 import type { CalculationRequest, CalculationResult } from "../../domain/calculation";
 import { ReportExportDialog } from "../reports/ReportExportDialog";
 
@@ -17,8 +18,11 @@ export function CalculationResultPanel({
   if (!result) {
     return (
       <section className="result-panel result-panel--empty">
+        <div className="result-panel__empty-icon">
+          <FileText size={22} aria-hidden="true" />
+        </div>
         <h2>结果与过程</h2>
-        <p>完成计算后，这里会显示公式、代入值、中间值、结论和风险提示。</p>
+        <p>完成计算后，这里会显示结论、需求参数、公式代入、风险提示和报告导出。</p>
       </section>
     );
   }
@@ -28,11 +32,15 @@ export function CalculationResultPanel({
       <header>
         <div>
           <h2>{result.moduleName}</h2>
-          <p>计算过程</p>
+          <p>计算结果</p>
         </div>
-        <strong>{result.summary}</strong>
+        <span className="result-panel__state">
+          <CheckCircle2 size={16} aria-hidden="true" />
+          已完成
+        </span>
       </header>
 
+      <strong className="result-panel__summary">{result.summary}</strong>
       <p className="result-panel__conclusion">{result.conclusion}</p>
 
       <div className="requirement-grid">
@@ -56,6 +64,10 @@ export function CalculationResultPanel({
 
       <div className="result-panel__split">
         <div className="formula-steps">
+          <div className="result-panel__section-title">
+            <FileText size={15} aria-hidden="true" />
+            <h3>公式过程</h3>
+          </div>
           {result.steps.map((step) => (
             <article key={step.label}>
               <h3>{step.label}</h3>
@@ -68,6 +80,10 @@ export function CalculationResultPanel({
           ))}
         </div>
         <aside className="risk-list">
+          <div className="result-panel__section-title">
+            <AlertTriangle size={15} aria-hidden="true" />
+            <h3>风险与判断</h3>
+          </div>
           {result.rules.map((rule) => (
             <div className={`rule-item rule-item--${rule.risk}`} key={rule.id}>
               <strong>{rule.label}</strong>
@@ -77,7 +93,7 @@ export function CalculationResultPanel({
           ))}
           {result.risks.map((risk) => (
             <div className={`risk-item risk-item--${risk.level}`} key={risk.message}>
-              <strong>{risk.level}</strong>
+              <strong>{riskLevelText(risk.level)}</strong>
               <p>{risk.message}</p>
             </div>
           ))}
@@ -85,4 +101,17 @@ export function CalculationResultPanel({
       </div>
     </section>
   );
+}
+
+function riskLevelText(level: string): string {
+  switch (level) {
+    case "success":
+      return "通过";
+    case "warning":
+      return "注意";
+    case "danger":
+      return "风险";
+    default:
+      return "提示";
+  }
 }

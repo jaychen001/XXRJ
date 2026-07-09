@@ -1,3 +1,4 @@
+@import "./calculation-page-panels.css";
 .calculation-page {
   display: grid;
   gap: var(--space-lg);
@@ -5,14 +6,32 @@
 
 .calculation-page__header,
 .module-list__header,
-.result-panel header {
+.calculation-form__heading,
+.result-panel header,
+.calculation-form__actions,
+.result-panel__section-title {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-md);
 }
 
+.calculation-page__status-group,
+.confirm-state,
+.result-panel__state,
+.primary-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.calculation-page__status-group {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
 .calculation-status {
+  min-height: 28px;
   padding: var(--space-xs) var(--space-sm);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
@@ -21,9 +40,57 @@
   font-size: var(--text-caption);
 }
 
+.calculation-status--strong {
+  color: var(--color-info);
+  background: #e7f5f2;
+  border-color: #b7deda;
+}
+
+.calculation-page__summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(120px, 1fr));
+  gap: var(--space-sm);
+}
+
+.calculation-page__summary div,
+.module-list,
+.calculation-form,
+.result-panel {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.calculation-page__summary div {
+  display: grid;
+  gap: var(--space-2xs);
+  min-height: 64px;
+  padding: var(--space-md);
+}
+
+.calculation-page__summary span,
+.module-list__header span,
+.module-card span,
+.module-card small,
+.module-card em,
+.unit-field em,
+.calculation-form__warning,
+.result-panel header p,
+.report-export-inline p,
+.report-export-inline__status {
+  color: var(--color-text-secondary);
+  font-size: var(--text-caption);
+}
+
+.calculation-page__summary strong {
+  font-size: var(--text-heading-md);
+  line-height: 24px;
+}
+
 .calculation-workbench {
   display: grid;
-  grid-template-columns: 280px minmax(0, 1fr);
+  grid-template-columns: 270px minmax(380px, 1fr) 360px;
+  align-items: start;
   gap: var(--space-lg);
 }
 
@@ -32,27 +99,27 @@
 .result-panel {
   display: grid;
   gap: var(--space-md);
+  min-width: 0;
   padding: var(--space-md);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.module-list,
+.result-panel {
+  max-height: calc(100vh - 178px);
+  overflow: auto;
 }
 
 .module-list h2,
 .calculation-form h2,
 .result-panel h2,
 .formula-steps h3,
+.risk-list h3,
 .calculation-form p,
-.result-panel p {
+.result-panel p,
+.report-export-inline h3,
+.report-export-inline p {
   margin: 0;
-}
-
-.module-list__header input {
-  min-width: 0;
-  height: 32px;
-  padding: 0 var(--space-sm);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
 }
 
 .module-list__items,
@@ -63,29 +130,39 @@
   gap: var(--space-sm);
 }
 
-.module-card {
+.calculation-form__heading > div {
   display: grid;
   gap: var(--space-2xs);
-  padding: var(--space-sm);
-  border: 1px solid var(--color-border);
+  min-width: 0;
+}
+
+.calculation-form__heading > div > span,
+.calculation-form__heading > strong,
+.result-panel__state,
+.confirm-state {
+  width: fit-content;
+  padding: var(--space-2xs) var(--space-sm);
   border-radius: var(--radius-sm);
-  color: var(--color-text-primary);
-  background: var(--color-background);
-  text-align: left;
+  font-size: var(--text-caption);
+  font-weight: 600;
 }
 
-.module-card--active {
-  border-color: var(--color-primary);
-  background: var(--color-primary-weak);
+.calculation-form__heading > div > span {
+  color: var(--color-info);
+  background: #e7f5f2;
 }
 
-.module-card span,
-.module-card small,
-.unit-field small,
-.unit-field em,
-.calculation-form__warning,
-.result-panel header p {
+.calculation-form__heading > strong {
   color: var(--color-text-secondary);
+  background: var(--color-surface-subtle);
+}
+
+.calculation-form__error {
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid #f0b8b2;
+  border-radius: var(--radius-sm);
+  color: var(--color-danger);
+  background: #fff3f1;
   font-size: var(--text-caption);
 }
 
@@ -96,31 +173,32 @@
 .unit-field {
   display: grid;
   gap: var(--space-xs);
+  min-width: 0;
 }
 
 .unit-field > span {
-  display: grid;
-  gap: var(--space-2xs);
   font-weight: 600;
 }
 
 .unit-field > div {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 72px;
+  grid-template-columns: minmax(0, 1fr) 78px;
   overflow: hidden;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
+  background: var(--color-surface);
 }
 
 .unit-field input,
 .unit-field select {
   min-width: 0;
-  height: 34px;
+  height: 36px;
   padding: 0 var(--space-sm);
   border: 0;
 }
 
-.unit-field select {
+.unit-field select,
+.unit-field strong {
   border-left: 1px solid var(--color-border);
   background: var(--color-surface-subtle);
 }
@@ -129,13 +207,18 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-left: 1px solid var(--color-border);
-  background: var(--color-surface-subtle);
 }
 
 .unit-field b {
   color: var(--color-danger);
   font-size: var(--text-caption);
+}
+
+.unit-field--safety {
+  padding: var(--space-md);
+  border: 1px solid #f1d39a;
+  border-radius: var(--radius-sm);
+  background: #fff9ec;
 }
 
 .confirm-line {
@@ -146,97 +229,72 @@
   font-size: var(--text-caption);
 }
 
-.requirement-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(120px, 1fr));
-  gap: var(--space-sm);
+.confirm-line input {
+  width: 14px;
+  height: 14px;
 }
 
-.requirement-grid div,
-.formula-steps article,
-.risk-item,
-.rule-item {
-  display: grid;
-  gap: var(--space-xs);
-  padding: var(--space-sm);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: var(--color-background);
+.calculation-form__actions {
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--color-border);
 }
 
-.result-panel__split {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 360px;
-  gap: var(--space-md);
-}
-
-.formula-steps code,
-.rule-item span {
-  font-family: var(--font-mono);
-  font-size: var(--text-caption);
-}
-
-.rule-item--warning {
-  border-color: #f1d39a;
+.confirm-state {
+  color: var(--color-warning);
   background: #fff7e6;
 }
 
-.rule-item--low {
-  border-color: #b7dfcc;
+.confirm-state--ok,
+.result-panel__state {
+  color: var(--color-success);
   background: #e8f5ef;
 }
 
-.risk-item--warning {
-  border-color: #f1d39a;
-  background: #fff7e6;
-}
-
-.risk-item--success {
-  border-color: #b7dfcc;
-  background: #e8f5ef;
-}
-
-.report-export-inline {
-  display: grid;
-  gap: var(--space-sm);
-  padding: var(--space-md);
-  border: 1px solid var(--color-border);
+.primary-button {
+  justify-content: center;
+  min-width: 104px;
+  height: 36px;
+  padding: 0 var(--space-md);
   border-radius: var(--radius-sm);
-  background: var(--color-background);
+  color: #ffffff;
+  background: var(--color-primary);
+  font-weight: 600;
 }
 
-.report-export-inline h3,
-.report-export-inline p {
-  margin: 0;
+.primary-button:hover {
+  background: #1d4ed8;
 }
 
-.report-export-inline p,
-.report-export-inline__status {
-  color: var(--color-text-secondary);
-  font-size: var(--text-caption);
+.primary-button:disabled {
+  opacity: 0.55;
 }
 
-.report-export-inline__controls {
-  display: grid;
-  grid-template-columns: 140px minmax(220px, 1fr) auto;
-  gap: var(--space-sm);
-  align-items: end;
+@media (max-width: 1380px) {
+  .calculation-workbench {
+    grid-template-columns: 270px minmax(0, 1fr);
+  }
+
+  .result-panel {
+    grid-column: 1 / -1;
+    max-height: none;
+  }
 }
 
-.report-export-inline label {
-  display: grid;
-  gap: var(--space-xs);
-  color: var(--color-text-secondary);
-  font-size: var(--text-caption);
-}
+@media (max-width: 1100px) {
+  .calculation-page__header,
+  .calculation-form__actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
 
-.report-export-inline input,
-.report-export-inline select {
-  height: 34px;
-  min-width: 0;
-  padding: 0 var(--space-sm);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  color: var(--color-text-primary);
-  background: var(--color-surface);
+  .calculation-page__summary,
+  .calculation-workbench,
+  .field-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .module-list,
+  .result-panel {
+    max-height: none;
+  }
 }
