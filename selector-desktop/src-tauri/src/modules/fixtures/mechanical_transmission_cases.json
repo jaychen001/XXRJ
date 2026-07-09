@@ -9,10 +9,14 @@
       { "id": "smallPulleyDiameter", "value": 100.0, "unit": "mm" },
       { "id": "smallPulleySpeed", "value": 1450.0, "unit": "rpm" },
       { "id": "serviceFactor", "value": 1.3, "unit": "ratio" },
+      { "id": "arcCorrectionFactor", "value": 0.95, "unit": "ratio" },
+      { "id": "lengthCorrectionFactor", "value": 1.0, "unit": "ratio" },
+      { "id": "beltCount", "value": 1.0, "unit": "pcs" },
+      { "id": "candidateBeltPower", "value": 1.5, "unit": "kW" },
       { "id": "beltEfficiency", "value": 0.95, "unit": "ratio" }
     ],
-    "expectedStepLabels": ["带速", "设计功率"],
-    "expectedRequirementIds": ["designPower", "beltSpeed"]
+    "expectedStepLabels": ["带速", "设计功率", "单根需求功率", "修正额定功率", "功率余量", "有效拉力"],
+    "expectedRequirementIds": ["designPower", "beltSpeed", "requiredPowerPerBelt", "powerMargin", "effectivePull"]
   },
   {
     "name": "齿轮中心距例题",
@@ -23,10 +27,14 @@
       { "id": "module", "value": 2.0, "unit": "mm" },
       { "id": "driveTeeth", "value": 20.0, "unit": "teeth" },
       { "id": "drivenTeeth", "value": 60.0, "unit": "teeth" },
-      { "id": "faceWidth", "value": 20.0, "unit": "mm" }
+      { "id": "faceWidth", "value": 20.0, "unit": "mm" },
+      { "id": "transmitTorque", "value": 5.0, "unit": "Nm" },
+      { "id": "gearSpeed", "value": 300.0, "unit": "rpm" },
+      { "id": "serviceFactor", "value": 1.25, "unit": "ratio" },
+      { "id": "allowableToothStress", "value": 120.0, "unit": "N/mm²" }
     ],
-    "expectedStepLabels": ["主动分度圆", "从动分度圆", "中心距", "减速比"],
-    "expectedRequirementIds": ["module", "centerDistance", "gearRatio"]
+    "expectedStepLabels": ["主动分度圆", "从动分度圆", "中心距", "减速比", "设计扭矩", "齿面切向力", "弯曲应力指标"],
+    "expectedRequirementIds": ["module", "centerDistance", "gearRatio", "tangentialForce", "stressMargin"]
   },
   {
     "name": "链条节距例题",
@@ -38,10 +46,14 @@
       { "id": "smallSprocketTeeth", "value": 18.0, "unit": "teeth" },
       { "id": "largeSprocketTeeth", "value": 36.0, "unit": "teeth" },
       { "id": "centerDistance", "value": 500.0, "unit": "mm" },
-      { "id": "sprocketSpeed", "value": 200.0, "unit": "rpm" }
+      { "id": "sprocketSpeed", "value": 200.0, "unit": "rpm" },
+      { "id": "transmitPower", "value": 0.5, "unit": "kW" },
+      { "id": "serviceFactor", "value": 1.4, "unit": "ratio" },
+      { "id": "strandCount", "value": 1.0, "unit": "pcs" },
+      { "id": "candidatePowerRating", "value": 1.0, "unit": "kW" }
     ],
-    "expectedStepLabels": ["传动比", "链速", "链节数"],
-    "expectedRequirementIds": ["chainRatio", "chainSpeed", "chainLinks"]
+    "expectedStepLabels": ["传动比", "链速", "链节数", "设计功率", "单排需求功率", "功率余量", "链条有效拉力"],
+    "expectedRequirementIds": ["chainRatio", "chainSpeed", "chainLinks", "designPower", "chainPull", "powerMargin"]
   },
   {
     "name": "凸轮分割器例题",

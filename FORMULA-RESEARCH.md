@@ -25,6 +25,8 @@
 | 气动控制/电磁阀 | SMC - Air Cylinders Model Selection Data 2: https://www.smcworld.com/catalog/BEST-technical-data-en/pdf/6-2-1-m21-43-tech_en.pdf | 气缸耗气量、管路耗气量、每分钟所需空气量 |
 | 同步带/V 带 | Gates - Light Power and Precision Drive Design Manual: https://www.gates.com/content/dam/documents-library/catalogs/light-power-and-precision-manual.pdf | 同步带、精密传动、带轮和功率选型流程 |
 | V 带 | Gates - Heavy Duty V-Belt Drive Design Manual: https://www.gates.com/content/dam/documents-library/catalogs/heavy-duty-vbelt-drive-design-manual-en.pdf | V 带功率、工况系数和传动设计校核 |
+| 链条 | U.S. Tsubaki - Chain Drive Selection: https://chains.ustsubaki.com/Asset/Chain-Drive-Selection_1.pdf | 滚子链服务系数、设计功率、链排数修正和功率额定值选型流程 |
+| 齿轮 | KHK - Gear Technical Reference: https://khkgears.net/new/gear_knowledge/gear_technical_reference/ | 齿轮几何参数、齿面切向力和齿根弯曲强度校核 |
 | 凸轮分割器 | Sankyo ECO Series: https://www.sankyo-seisakusho.co.jp/english/download/pdf/catalog/sandex/c_sandex_eco_ed_eng.pdf | 分割器选型需确认输入/输出条件、负载条件，并由扭矩计算复核 |
 | 凸轮分割器 | DESTACO CAMCO Mechanical Rotary Indexers: https://www.destaco.com/rotary-positioning/indexers/mechanical-rotary-indexers | 分割器用于精确间歇定位，型号需结合工位、index time、负载和扭矩能力 |
 | 滚动轴承 | SKF - Rating life: https://www.skf.com/group/products/rolling-bearings/principles-of-rolling-bearing-selection/bearing-selection-process/bearing-size/size-selection-based-on-rating-life/skf-rating-life | L10 寿命、等效动载荷和 C/P 关系 |
@@ -50,6 +52,9 @@
 | 滚动轴承 | X/Y 载荷系数、目标寿命、C/C0、寿命指数 | L10 寿命、所需动额定载荷、动载余量和静载余量 |
 | 直线轴承 | 轴承数量、方向系数、冲击系数、目标行走寿命 | 单轴承设计载荷、50 km 基准寿命、所需 C 值和速度风险 |
 | 联轴器 | 峰值扭矩、候选额定扭矩、温度系数、角向/轴向偏差 | 设计扭矩、扭矩余量、扭转需求指标和偏差指标 |
+| V 带 | 包角修正系数、带长修正系数、皮带根数、单根额定功率 | 单根需求功率、修正额定功率、功率余量和有效拉力 |
+| 链条 | 传递功率、工况系数、链排数、候选单排额定功率 | 设计功率、单排需求功率、功率余量和链条有效拉力 |
+| 齿轮 | 传递扭矩、主动齿轮转速、工况系数、许用齿根应力 | 齿面切向力、弯曲应力指标、齿根应力余量和节线速度 |
 
 ### 伺服电机 / 步进电机
 
@@ -257,6 +262,82 @@
 - 偏差指标
 - 类型建议和偏差补偿风险
 
+### V 带
+
+设计师通常已知：
+
+- 传递功率
+- 小带轮直径
+- 小带轮转速
+- 工况系数
+- 传动效率
+- 包角修正系数
+- 带长修正系数
+- 皮带根数
+- 候选单根额定功率
+- 安全系数
+
+输出：
+
+- 设计功率
+- 单根需求功率
+- 修正后单根额定功率
+- 功率余量
+- 带速
+- 有效拉力
+- 带速和功率余量风险
+
+### 链条
+
+设计师通常已知：
+
+- 传递功率
+- 小链轮齿数
+- 小链轮转速
+- 链条节距
+- 中心距
+- 工况系数
+- 链排数
+- 候选单排额定功率
+- 安全系数
+
+输出：
+
+- 设计功率
+- 单排需求功率
+- 修正后额定功率
+- 功率余量
+- 链速
+- 链长节数
+- 链条有效拉力
+- 小链轮齿数、链速和中心距风险
+
+### 齿轮
+
+设计师通常已知：
+
+- 模数
+- 主动齿轮齿数
+- 从动齿轮齿数
+- 压力角
+- 齿宽
+- 传递扭矩
+- 主动齿轮转速
+- 工况系数
+- 许用齿根应力
+- 安全系数
+
+输出：
+
+- 分度圆直径
+- 中心距
+- 传动比
+- 齿面切向力
+- 弯曲应力指标
+- 齿根应力余量
+- 节线速度
+- 齿数、压力角、齿宽和强度风险
+
 ### 普通电机 / 调速电机
 
 设计师通常已知：
@@ -330,9 +411,6 @@
 
 ## 4. 下一步公式补强顺序
 
-1. V 带
-2. 链条
-3. 齿轮
-4. 减速机 / 直线模组
-5. 手指气缸 / 滑台气缸
-6. 机器人、拖链、传感器、材料、机加工等规则型模块
+1. 减速机 / 直线模组
+2. 手指气缸 / 滑台气缸
+3. 机器人、拖链、传感器、材料、机加工等规则型模块
