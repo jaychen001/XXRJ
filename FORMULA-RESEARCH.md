@@ -27,6 +27,10 @@
 | V 带 | Gates - Heavy Duty V-Belt Drive Design Manual: https://www.gates.com/content/dam/documents-library/catalogs/heavy-duty-vbelt-drive-design-manual-en.pdf | V 带功率、工况系数和传动设计校核 |
 | 凸轮分割器 | Sankyo ECO Series: https://www.sankyo-seisakusho.co.jp/english/download/pdf/catalog/sandex/c_sandex_eco_ed_eng.pdf | 分割器选型需确认输入/输出条件、负载条件，并由扭矩计算复核 |
 | 凸轮分割器 | DESTACO CAMCO Mechanical Rotary Indexers: https://www.destaco.com/rotary-positioning/indexers/mechanical-rotary-indexers | 分割器用于精确间歇定位，型号需结合工位、index time、负载和扭矩能力 |
+| 滚动轴承 | SKF - Rating life: https://www.skf.com/group/products/rolling-bearings/principles-of-rolling-bearing-selection/bearing-selection-process/bearing-size/size-selection-based-on-rating-life/skf-rating-life | L10 寿命、等效动载荷和 C/P 关系 |
+| 直线轴承 | THK - Rated Load and Nominal Life: https://www.thk.com/eu/en/products/other_linear_motion_guides/linear_bushing/selection/0002/ | 直线轴承 50 km 名义寿命和 C/P 寿命公式 |
+| 联轴器 | SKF Couplings Catalogue: https://cdn.skfmediahub.skf.com/api/public/094e20a34cf10d47/pdf_preview_medium/15822_%28EN%29_SKF_Couplings_pdf_preview_medium.pdf | 联轴器额定值 = 工况系数 × 系统扭矩，且需按转速和安装偏差复核 |
+| 联轴器 | KTR Coupling Selection Operating Factors: https://www.ktr.com/fileadmin/ktr/media/Tools_Downloads/kataloge/coupling_selection_operating_factors.pdf | 额定扭矩、最大扭矩、温度系数和冲击工况复核 |
 
 ## 3. 高频模块输入重构方向
 
@@ -43,6 +47,9 @@
 | 普通电机/调速电机 | 启动加速时间、外部阻力、垂直负载系数 | 输出等效推力、启动加速力、功率、转速和调速范围风险 |
 | 电磁阀/气动控制 | 气缸数量、杆径、管路内径、管路长度、阀额定流量 | 单循环耗气、峰值流量、持续耗气量和阀流量余量 |
 | 凸轮分割器 | 分割时间、运动曲线系数 | 停歇时间、峰值角速度、角加速度、设计扭矩和峰值功率 |
+| 滚动轴承 | X/Y 载荷系数、目标寿命、C/C0、寿命指数 | L10 寿命、所需动额定载荷、动载余量和静载余量 |
+| 直线轴承 | 轴承数量、方向系数、冲击系数、目标行走寿命 | 单轴承设计载荷、50 km 基准寿命、所需 C 值和速度风险 |
+| 联轴器 | 峰值扭矩、候选额定扭矩、温度系数、角向/轴向偏差 | 设计扭矩、扭矩余量、扭转需求指标和偏差指标 |
 
 ### 伺服电机 / 步进电机
 
@@ -182,6 +189,74 @@
 - 力矩风险
 - 安装姿态风险
 
+### 滚动轴承
+
+设计师通常已知：
+
+- 径向载荷和轴向载荷
+- 轴承转速
+- X/Y 载荷系数或轴承类型经验系数
+- 工况系数
+- 目标寿命小时
+- 候选轴承动额定载荷 C
+- 候选轴承静额定载荷 C0
+- 寿命指数，球轴承取 3，滚子轴承取 10/3
+- 安全系数
+
+输出：
+
+- 等效动载荷
+- L10 寿命和寿命小时
+- 所需动额定载荷
+- 动载余量
+- 静载余量
+- 寿命和静载风险
+
+### 直线轴承
+
+设计师通常已知：
+
+- 总径向载荷
+- 共同承载的轴承数量
+- 安装方向和受力不均修正
+- 冲击系数
+- 轴径
+- 运行速度
+- 目标行走寿命
+- 候选直线轴承动额定载荷 C
+- 安全系数
+
+输出：
+
+- 单轴承设计载荷
+- 载荷余量
+- 额定行走寿命
+- 所需动额定载荷
+- 速度指标和高速风险
+
+### 联轴器
+
+设计师通常已知：
+
+- 电机额定扭矩
+- 峰值扭矩
+- 候选联轴器额定扭矩
+- 冲击系数和温度修正系数
+- 工作转速
+- 负载惯量比
+- 平行偏差、角向偏差和轴向位移
+- 安全系数
+
+输出：
+
+- 额定修正扭矩
+- 峰值修正扭矩
+- 设计扭矩
+- 扭矩余量
+- 扭转需求指标
+- 偏差指标
+- 类型建议和偏差补偿风险
+
 ### 普通电机 / 调速电机
 
 设计师通常已知：
@@ -255,12 +330,9 @@
 
 ## 4. 下一步公式补强顺序
 
-1. 滚动轴承
-2. 联轴器
-3. 直线轴承
-4. V 带
-5. 链条
-6. 齿轮
-7. 减速机 / 直线模组
-8. 手指气缸 / 滑台气缸
-9. 机器人、拖链、传感器、材料、机加工等规则型模块
+1. V 带
+2. 链条
+3. 齿轮
+4. 减速机 / 直线模组
+5. 手指气缸 / 滑台气缸
+6. 机器人、拖链、传感器、材料、机加工等规则型模块

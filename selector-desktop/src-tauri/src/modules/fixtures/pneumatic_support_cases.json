@@ -108,12 +108,16 @@
     "safetyFactorConfirmed": true,
     "fields": [
       { "id": "radialLoad", "value": 200.0, "unit": "N" },
+      { "id": "bearingCount", "value": 2.0, "unit": "pcs" },
+      { "id": "loadDirectionFactor", "value": 1.0, "unit": "ratio" },
+      { "id": "impactFactor", "value": 1.5, "unit": "ratio" },
       { "id": "shaftDiameter", "value": 20.0, "unit": "mm" },
       { "id": "travelSpeed", "value": 300.0, "unit": "mm/s" },
+      { "id": "requiredTravelLife", "value": 5000.0, "unit": "km" },
       { "id": "loadRating", "value": 1000.0, "unit": "N" }
     ],
-    "expectedStepLabels": ["设计载荷", "载荷余量", "速度指标"],
-    "expectedRequirementIds": ["designLoad", "loadMargin", "speedIndex"]
+    "expectedStepLabels": ["设计载荷", "载荷余量", "额定寿命", "所需动额定载荷", "速度指标"],
+    "expectedRequirementIds": ["designLoad", "loadMargin", "ratedLife", "requiredLoadRating", "speedIndex"]
   },
   {
     "name": "滚动轴承寿命例题",
@@ -123,12 +127,17 @@
     "fields": [
       { "id": "radialLoad", "value": 500.0, "unit": "N" },
       { "id": "axialLoad", "value": 100.0, "unit": "N" },
+      { "id": "xFactor", "value": 1.0, "unit": "ratio" },
+      { "id": "yFactor", "value": 0.6, "unit": "ratio" },
       { "id": "shaftSpeed", "value": 600.0, "unit": "rpm" },
+      { "id": "requiredLifeHours", "value": 10000.0, "unit": "h" },
       { "id": "dynamicLoadRating", "value": 3000.0, "unit": "N" },
+      { "id": "staticLoadRating", "value": 2000.0, "unit": "N" },
+      { "id": "lifeExponent", "value": 3.0, "unit": "ratio" },
       { "id": "applicationFactor", "value": 1.2, "unit": "ratio" }
     ],
-    "expectedStepLabels": ["等效动载荷", "额定寿命", "寿命小时"],
-    "expectedRequirementIds": ["equivalentLoad", "dynamicLoadRating", "lifeHours"]
+    "expectedStepLabels": ["等效动载荷", "额定寿命", "寿命小时", "所需动额定载荷", "静载余量"],
+    "expectedRequirementIds": ["equivalentLoad", "requiredDynamicLoadRating", "lifeHours", "staticMargin"]
   },
   {
     "name": "联轴器例题",
@@ -137,12 +146,17 @@
     "safetyFactorConfirmed": true,
     "fields": [
       { "id": "motorTorque", "value": 2.0, "unit": "Nm" },
+      { "id": "peakTorque", "value": 4.0, "unit": "Nm" },
+      { "id": "ratedTorque", "value": 10.0, "unit": "Nm" },
       { "id": "shockFactor", "value": 1.5, "unit": "ratio" },
+      { "id": "temperatureFactor", "value": 1.0, "unit": "ratio" },
       { "id": "shaftSpeed", "value": 1500.0, "unit": "rpm" },
       { "id": "inertiaRatio", "value": 3.0, "unit": "ratio" },
-      { "id": "parallelOffset", "value": 0.05, "unit": "mm" }
+      { "id": "parallelOffset", "value": 0.05, "unit": "mm" },
+      { "id": "angularOffset", "value": 0.5, "unit": "deg" },
+      { "id": "axialOffset", "value": 0.2, "unit": "mm" }
     ],
-    "expectedStepLabels": ["设计扭矩", "扭转需求指标"],
-    "expectedRequirementIds": ["designTorque", "torsionalIndex", "shaftSpeed"]
+    "expectedStepLabels": ["额定修正扭矩", "峰值修正扭矩", "设计扭矩", "扭矩余量", "扭转需求指标", "偏差指标"],
+    "expectedRequirementIds": ["designTorque", "torqueMargin", "torsionalIndex", "shaftSpeed"]
   }
 ]
