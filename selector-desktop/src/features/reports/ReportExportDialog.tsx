@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { Download } from "lucide-react";
+import { save } from "@tauri-apps/plugin-dialog";
+import { Download, FolderOpen } from "lucide-react";
 import type { CalculationRequest, CalculationResult } from "../../domain/calculation";
 import type { RecommendationCandidate } from "../../domain/vendor";
 import { exportCalculationReport } from "../../shared/api/report";
@@ -28,13 +29,41 @@ export function ReportExportDialog({
     () => `${caseName.trim() || result?.moduleName || "选型计算报告"}`,
     [caseName, result?.moduleName],
   );
+  const extension = extensionForFormat(format);
+
+  async function handleSelectOutputPath() {
+    if (!request || !result) {
+      setStatus("请先完成一次计算。");
+      return;
+    }
+    setStatus("正在选择保存位置");
+    try {
+      const selected = await save({
+        defaultPath: `${defaultName}.${extension}`,
+        filters: [
+          {
+            name: format === "pdf" ? "PDF 报告" : "Excel 报告",
+            extensions: [extension],
+          },
+        ],
+      });
+      if (!selected) {
+        setStatus("未选择保存位置。");
+        return;
+      }
+      setOutputPath(selected);
+      setStatus("已选择保存位置。");
+    } catch (error: unknown) {
+      setStatus(error instanceof Error ? error.message : String(error));
+    }
+  }
 
   async function handleExport() {
     if (!request || !result) {
       setStatus("请先完成一次计算。");
       return;
     }
-    const path = outputPath.trim() || `${defaultName}.${format === "pdf" ? "pdf" : "xlsx"}`;
+    const path = outputPath.trim() || `${defaultName}.${extension}`;
     setStatus("正在导出报告");
     try {
       const record = await exportCalculationReport({
@@ -76,11 +105,19 @@ export function ReportExportDialog({
           <span>保存路径</span>
           <input
             aria-label="当前报告输出路径"
-            placeholder={`${defaultName}.${format === "pdf" ? "pdf" : "xlsx"}`}
+            placeholder={`${defaultName}.${extension}`}
             value={outputPath}
             onChange={(event) => setOutputPath(event.target.value)}
           />
         </label>
+        <button
+          className="primary-button primary-button--secondary"
+          type="button"
+          onClick={() => void handleSelectOutputPath()}
+        >
+          <FolderOpen size={16} aria-hidden="true" />
+          选择位置
+        </button>
         <button className="primary-button" type="button" onClick={() => void handleExport()}>
           <Download size={16} aria-hidden="true" />
           导出
@@ -91,4 +128,8 @@ export function ReportExportDialog({
       </span>
     </section>
   );
+}
+
+function extensionForFormat(format: string): "pdf" | "xlsx" {
+  return format === "pdf" ? "pdf" : "xlsx";
 }

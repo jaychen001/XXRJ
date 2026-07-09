@@ -1,6 +1,7 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { invoke } from "@tauri-apps/api/core";
+import { save } from "@tauri-apps/plugin-dialog";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { setupAppInvokeMock } from "./app-test-fixtures";
 import { App } from "./App";
@@ -9,12 +10,19 @@ vi.mock("@tauri-apps/api/core", () => ({
   invoke: vi.fn(),
 }));
 
+vi.mock("@tauri-apps/plugin-dialog", () => ({
+  open: vi.fn(),
+  save: vi.fn(),
+}));
+
 const invokeMock = vi.mocked(invoke);
+const saveMock = vi.mocked(save);
 
 describe("报告导出和 QA 可见边界", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     setupAppInvokeMock(invokeMock);
+    saveMock.mockResolvedValue("D:\\reports\\current.pdf");
   });
 
   it("报告导出只在当前计算结果页出现", async () => {
@@ -30,15 +38,25 @@ describe("报告导出和 QA 可见边界", () => {
     const reportRegion = await screen.findByRole("region", { name: "导出当前计算报告" });
     expect(within(reportRegion).getByText("导出报告")).toBeInTheDocument();
 
-    await user.type(within(reportRegion).getByLabelText("当前报告输出路径"), "current.pdf");
+    await user.click(within(reportRegion).getByRole("button", { name: "选择位置" }));
+    expect(saveMock).toHaveBeenCalledWith({
+      defaultPath: "选型计算案例.pdf",
+      filters: [
+        {
+          name: "PDF 报告",
+          extensions: ["pdf"],
+        },
+      ],
+    });
+    expect(within(reportRegion).getByLabelText("当前报告输出路径")).toHaveValue("D:\\reports\\current.pdf");
     await user.click(within(reportRegion).getByRole("button", { name: "导出" }));
 
-    expect(await screen.findByText("已导出：current.pdf")).toBeInTheDocument();
+    expect(await screen.findByText("已导出：D:\\reports\\current.pdf")).toBeInTheDocument();
     expect(invokeMock).toHaveBeenCalledWith(
       "export_calculation_report",
       expect.objectContaining({
         request: expect.objectContaining({
-          outputPath: "current.pdf",
+          outputPath: "D:\\reports\\current.pdf",
           candidates: [],
           finalModelName: null,
         }),

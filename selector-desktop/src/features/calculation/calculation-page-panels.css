@@ -171,7 +171,7 @@
 
 .report-export-inline__controls {
   display: grid;
-  grid-template-columns: 104px minmax(0, 1fr) auto;
+  grid-template-columns: 104px minmax(0, 1fr) auto auto;
   gap: var(--space-sm);
   align-items: end;
 }
@@ -192,6 +192,16 @@
   border-radius: var(--radius-sm);
   color: var(--color-text-primary);
   background: var(--color-surface);
+}
+
+.report-export-inline .primary-button--secondary {
+  border: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+  background: var(--color-surface);
+}
+
+.report-export-inline .primary-button--secondary:hover {
+  background: #f3f6fa;
 }
 
 @media (max-width: 1380px) {
