@@ -45,4 +45,56 @@ describe("驱动与线性传动计算", () => {
       );
     });
   });
+
+  it("在选型计算中完成减速机承载校核", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await screen.findByText("本地数据正常");
+
+    await user.type(screen.getByLabelText("搜索计算对象"), "减速机");
+    await user.click(screen.getByRole("button", { name: /减速机基础计算/ }));
+    await user.click(screen.getByLabelText("我已确认本次计算使用的安全系数"));
+    await user.click(screen.getByRole("button", { name: "计算" }));
+
+    expect((await screen.findAllByText("减速比")).length).toBeGreaterThan(0);
+    expect(screen.getAllByText("设计输出扭矩").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("扭矩余量").length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/减速比 25.000/).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/PDF P/)).not.toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(invokeMock).toHaveBeenCalledWith(
+        "run_calculation",
+        expect.objectContaining({
+          request: expect.objectContaining({ moduleId: "reducer-basic" }),
+        }),
+      );
+    });
+  });
+
+  it("在选型计算中完成直线模组推力和寿命校核", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await screen.findByText("本地数据正常");
+
+    await user.type(screen.getByLabelText("搜索计算对象"), "直线模组");
+    await user.click(screen.getByRole("button", { name: /直线模组选型判断/ }));
+    await user.click(screen.getByLabelText("我已确认本次计算使用的安全系数"));
+    await user.click(screen.getByRole("button", { name: "计算" }));
+
+    expect((await screen.findAllByText("推力需求")).length).toBeGreaterThan(0);
+    expect(screen.getAllByText("额定寿命").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("静载余量").length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/推荐 滚珠丝杠模组/).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/PDF P/)).not.toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(invokeMock).toHaveBeenCalledWith(
+        "run_calculation",
+        expect.objectContaining({
+          request: expect.objectContaining({ moduleId: "linear-module-selector" }),
+        }),
+      );
+    });
+  });
 });

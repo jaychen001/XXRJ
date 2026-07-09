@@ -3,6 +3,7 @@ import type {
   CalculationResult,
   ModuleDefinition,
 } from "../domain/calculation";
+import { driveExtraModules, driveExtraResultForModule } from "./app-drive-test-data";
 import { mechanicalModules, mechanicalResultForModule } from "./app-mechanical-test-data";
 import {
   pneumaticSupportModules,
@@ -77,20 +78,7 @@ export const calculationModules: ModuleDefinition[] = [
     field("efficiency", "丝杠效率", "ratio", 0.9, "PDF P25 / 文档页 22 / 丝杆篇"),
   ]),
   ...mechanicalModules,
-  implementedModule("reducer-basic", "减速机基础计算", "传动", "减速机", "减速比、输出扭矩和输入扭矩", [
-    field("motorSpeed", "电机转速", "rpm", 1500, "PDF P54 / 文档页 51 / 减速机", ["rpm", "rps"]),
-    field("outputSpeed", "输出转速", "rpm", 60, "PDF P54 / 文档页 51 / 减速机", ["rpm", "rps"]),
-    field("loadTorque", "负载扭矩", "Nm", 20, "PDF P54 / 文档页 51 / 减速机"),
-    field("efficiency", "减速机效率", "ratio", 0.85, "PDF P54 / 文档页 51 / 减速机"),
-  ]),
-  implementedModule("linear-module-selector", "直线模组选型判断", "传动", "直线模组", "丝杆、同步带或常规模组初筛", [
-    field("loadMass", "负载质量", "kg", 8, "PDF P57 / 文档页 54 / 直线模组"),
-    field("stroke", "行程", "mm", 600, "PDF P57 / 文档页 54 / 直线模组", ["mm", "m"]),
-    field("targetSpeed", "目标速度", "mm/s", 500, "PDF P57 / 文档页 54 / 直线模组", ["mm/s", "m/s"]),
-    field("accelerationTime", "加速时间", "s", 0.3, "PDF P57 / 文档页 54 / 直线模组", ["s", "min"]),
-    field("positioningAccuracy", "定位精度", "mm", 0.05, "PDF P57 / 文档页 54 / 直线模组"),
-    field("frictionCoefficient", "摩擦系数", "ratio", 0.1, "PDF P57 / 文档页 54 / 直线模组"),
-  ]),
+  ...driveExtraModules,
   implementedModule("general-motor-power", "通用电机功率计算", "驱动", "电机篇", "输送线功率、扭矩和转速估算", [
     field("loadMass", "负载质量", "kg", 20, "PDF P4 / 文档页 1 / 电机篇"),
     field("driveDiameter", "驱动直径", "mm", 80, "PDF P4 / 文档页 1 / 电机篇", ["mm", "m"]),
@@ -131,6 +119,10 @@ export function calculationResultForModule(moduleId: string): CalculationResult 
   const mechanicalResult = mechanicalResultForModule(moduleId);
   if (mechanicalResult) {
     return mechanicalResult;
+  }
+  const driveExtraResult = driveExtraResultForModule(moduleId);
+  if (driveExtraResult) {
+    return driveExtraResult;
   }
   const pneumaticSupportResult = pneumaticSupportResultForModule(moduleId);
   if (pneumaticSupportResult) {

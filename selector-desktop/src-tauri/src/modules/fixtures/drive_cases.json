@@ -58,5 +58,51 @@
     ],
     "expectedStepLabels": ["摩擦力", "加速力", "等效推力", "输出扭矩", "需求转速", "需求功率"],
     "expectedRequirementIds": ["designForce", "power", "outputTorque", "requiredSpeed"]
+  },
+  {
+    "name": "减速机输出轴校核例题",
+    "moduleId": "reducer-basic",
+    "safetyFactor": 1.5,
+    "safetyFactorConfirmed": true,
+    "fields": [
+      { "id": "motorSpeed", "value": 1500.0, "unit": "rpm" },
+      { "id": "outputSpeed", "value": 60.0, "unit": "rpm" },
+      { "id": "loadTorque", "value": 20.0, "unit": "Nm" },
+      { "id": "serviceFactor", "value": 1.4, "unit": "ratio" },
+      { "id": "efficiency", "value": 0.85, "unit": "ratio" },
+      { "id": "candidateRatedTorque", "value": 80.0, "unit": "Nm" },
+      { "id": "actualRadialLoad", "value": 300.0, "unit": "N" },
+      { "id": "allowableRadialLoad", "value": 900.0, "unit": "N" },
+      { "id": "actualAxialLoad", "value": 80.0, "unit": "N" },
+      { "id": "allowableAxialLoad", "value": 300.0, "unit": "N" },
+      { "id": "maxInputSpeed", "value": 3000.0, "unit": "rpm" }
+    ],
+    "expectedStepLabels": ["减速比", "设计输出扭矩", "输入扭矩", "输出功率", "扭矩余量", "径向载荷余量", "轴向载荷余量"],
+    "expectedRequirementIds": ["reducerRatio", "outputTorque", "inputTorque", "torqueMargin", "radialLoadMargin", "axialLoadMargin"]
+  },
+  {
+    "name": "直线模组推力寿命例题",
+    "moduleId": "linear-module-selector",
+    "safetyFactor": 1.5,
+    "safetyFactorConfirmed": true,
+    "fields": [
+      { "id": "loadMass", "value": 8.0, "unit": "kg" },
+      { "id": "stroke", "value": 600.0, "unit": "mm" },
+      { "id": "targetSpeed", "value": 500.0, "unit": "mm/s" },
+      { "id": "accelerationTime", "value": 0.3, "unit": "s" },
+      { "id": "positioningAccuracy", "value": 0.05, "unit": "mm" },
+      { "id": "candidateRepeatability", "value": 0.02, "unit": "mm" },
+      { "id": "frictionCoefficient", "value": 0.1, "unit": "ratio" },
+      { "id": "externalForce", "value": 0.0, "unit": "N" },
+      { "id": "verticalLoadFactor", "value": 0.0, "unit": "ratio" },
+      { "id": "driveEfficiency", "value": 0.85, "unit": "ratio" },
+      { "id": "candidateRatedThrust", "value": 600.0, "unit": "N" },
+      { "id": "guideLoadFactor", "value": 1.2, "unit": "ratio" },
+      { "id": "dynamicLoadRating", "value": 4000.0, "unit": "N" },
+      { "id": "staticLoadRating", "value": 8000.0, "unit": "N" },
+      { "id": "targetTravelLife", "value": 10000.0, "unit": "km" }
+    ],
+    "expectedStepLabels": ["加速度", "加速力", "摩擦力", "推力需求", "推力余量", "导向设计载荷", "额定寿命", "静载余量", "单程时间"],
+    "expectedRequirementIds": ["requiredThrust", "thrustMargin", "ratedLife", "requiredDynamicLoadRating", "staticMargin", "cycleTime"]
   }
 ]
