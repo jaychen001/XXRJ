@@ -1,25 +1,18 @@
 @echo off
 setlocal
 
-call "%~dp0tauri-build.cmd"
+set "SCRIPT_ROOT=%~dp0"
+set "BUNDLE_DIR=%SCRIPT_ROOT%..\src-tauri\target\release\bundle"
+
+if exist "%BUNDLE_DIR%" (
+  powershell -NoProfile -ExecutionPolicy Bypass -Command "$bundle=(Resolve-Path -LiteralPath $env:BUNDLE_DIR).Path; $releaseRoot=(Resolve-Path -LiteralPath (Join-Path $env:SCRIPT_ROOT '..\src-tauri\target\release')).Path; if (-not $bundle.StartsWith($releaseRoot, [System.StringComparison]::OrdinalIgnoreCase)) { throw \"Refusing to remove unexpected bundle path: $bundle\" }; Remove-Item -LiteralPath $bundle -Recurse -Force"
+  if errorlevel 1 exit /b %errorlevel%
+)
+
+call "%SCRIPT_ROOT%tauri-build.cmd"
 if errorlevel 1 exit /b %errorlevel%
 
-set "BUNDLE_DIR=%~dp0..\src-tauri\target\release\bundle"
-if not exist "%BUNDLE_DIR%" (
-  echo Windows bundle directory was not created: %BUNDLE_DIR%
-  exit /b 1
-)
-
-set FOUND=0
-echo Windows package artifacts:
-for /r "%BUNDLE_DIR%" %%F in (*.exe *.msi) do (
-  set FOUND=1
-  echo %%F
-)
-
-if "%FOUND%"=="0" (
-  echo No Windows installer artifacts were found under %BUNDLE_DIR%.
-  exit /b 1
-)
+powershell -NoProfile -ExecutionPolicy Bypass -File "%SCRIPT_ROOT%validate-windows-package.ps1" -BundleDir "%BUNDLE_DIR%"
+if errorlevel 1 exit /b %errorlevel%
 
 exit /b 0

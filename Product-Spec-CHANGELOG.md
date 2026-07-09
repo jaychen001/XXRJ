@@ -1,5 +1,11 @@
 # 变更记录
 
+## [v1.12] - 2026-07-09
+
+### 修改
+- Windows 打包脚本支持从仓库任意目录运行，并自动兼容 Visual Studio Build Tools、Community、Professional、Enterprise。
+- Windows 打包后自动输出 MSI/NSIS 安装包 SHA256，并扫描打包目录中是否误带数据库、环境文件、密钥和开发路径。
+
 ## [v1.11] - 2026-07-09
 
 ### 修改
