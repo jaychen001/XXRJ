@@ -1,0 +1,130 @@
+.recommendation-panel {
+  display: grid;
+  gap: var(--space-sm);
+  padding: var(--space-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-background);
+}
+
+.recommendation-panel header,
+.recommendation-card__top,
+.recommendation-card__select,
+.recommendation-card__rules > span {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.recommendation-panel header,
+.recommendation-card__top {
+  justify-content: space-between;
+}
+
+.recommendation-panel h3,
+.recommendation-panel p,
+.recommendation-card p {
+  margin: 0;
+}
+
+.recommendation-panel header > div,
+.recommendation-card__top > div,
+.recommendation-card__rules {
+  display: grid;
+  gap: var(--space-2xs);
+  min-width: 0;
+}
+
+.recommendation-panel header p,
+.recommendation-panel__status,
+.recommendation-card span,
+.recommendation-card__rules p {
+  color: var(--color-text-secondary);
+  font-size: var(--text-caption);
+}
+
+.recommendation-panel__action {
+  flex: 0 0 auto;
+}
+
+.recommendation-panel__status {
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-subtle);
+}
+
+.recommendation-panel__status--success {
+  color: var(--color-success);
+  background: #e8f5ef;
+}
+
+.recommendation-panel__status--empty,
+.recommendation-panel__status--error {
+  color: var(--color-warning);
+  background: #fff7e6;
+}
+
+.recommendation-panel__list {
+  display: grid;
+  gap: var(--space-sm);
+}
+
+.recommendation-card {
+  display: grid;
+  gap: var(--space-sm);
+  padding: var(--space-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+}
+
+.recommendation-card__top strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recommendation-card__select {
+  min-height: 32px;
+  padding: 0 var(--space-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+  background: var(--color-background);
+  white-space: nowrap;
+}
+
+.recommendation-card__select[aria-pressed="true"] {
+  color: var(--color-success);
+  border-color: #b7dfcc;
+  background: #e8f5ef;
+}
+
+.recommendation-card__rules {
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+}
+
+.recommendation-card__rules--ok {
+  background: #f0faf5;
+}
+
+.recommendation-card__rules--warn {
+  background: #fff7e6;
+}
+
+.recommendation-card__rules > span {
+  font-weight: 600;
+}
+
+@media (max-width: 720px) {
+  .recommendation-panel header,
+  .recommendation-card__top {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .recommendation-card__select {
+    justify-content: center;
+  }
+}

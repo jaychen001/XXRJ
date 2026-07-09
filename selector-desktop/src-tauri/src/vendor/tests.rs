@@ -3,17 +3,30 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use rusqlite::Connection;
 
-use super::field_mapping::{build_models, validate_confirm_request};
+use super::field_mapping::{build_models, canonical_field_for_label, validate_confirm_request};
 use super::import_job;
 use super::models::{
     ConfirmVendorImportRequest, NewVendorLibrary, RecommendationRequest, RecommendationRequirement,
     VendorImportPreviewRequest,
 };
-use super::recommendation::recommend_models;
+use super::recommendation::{infer_component_type, recommend_models};
 use super::repository::{next_id, VendorRepository};
 
 #[test]
 fn csv_preview_requires_confirmed_mapping_before_import_and_recommendation() {
+    assert_eq!(
+        canonical_field_for_label("额定动载荷 C", "N", 0),
+        "dynamicLoadRating"
+    );
+    assert_eq!(
+        canonical_field_for_label("候选允许力矩", "Nm", 0),
+        "allowableMoment"
+    );
+    assert_eq!(
+        infer_component_type("pneumatic-rotary-actuator-sizing").as_deref(),
+        Some("旋转气缸")
+    );
+
     let sample_path = write_sample_csv();
     let preview = import_job::build_preview(&VendorImportPreviewRequest {
         source_file: sample_path.to_string_lossy().to_string(),
@@ -75,6 +88,23 @@ fn csv_preview_requires_confirmed_mapping_before_import_and_recommendation() {
     assert_eq!(candidates.len(), 2);
     assert_eq!(candidates[0].model.model_name, "SV-400");
     assert_eq!(candidates[0].failed_rules.len(), 0);
+
+    let failed_candidates = recommend_models(
+        &RecommendationRequest {
+            module_id: "timing-belt-basic".to_string(),
+            component_type: None,
+            limit: Some(5),
+            requirements: vec![requirement("outputTorque", "输出扭矩", 2.0, "Nm")],
+        },
+        repository
+            .list_models(None, true, None)
+            .expect("list models again"),
+    );
+    assert_eq!(failed_candidates.len(), 2);
+    assert!(failed_candidates[0].matched_rules.is_empty());
+    assert!(failed_candidates[0].failed_rules[0]
+        .message
+        .contains("不足"));
 
     fs::remove_file(sample_path).ok();
 }

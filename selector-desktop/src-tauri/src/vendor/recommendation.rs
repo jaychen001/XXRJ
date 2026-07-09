@@ -5,15 +5,24 @@ use super::models::{
     MatchRuleResult, RecommendationCandidate, RecommendationRequest, RecommendationRequirement,
     VendorModelRecord,
 };
+use super::recommendation_aliases::field_aliases;
+
+pub use super::recommendation_aliases::infer_component_type;
 
 pub fn recommend_models(
     request: &RecommendationRequest,
     models: Vec<VendorModelRecord>,
 ) -> Vec<RecommendationCandidate> {
+    if request.requirements.is_empty() {
+        return Vec::new();
+    }
+
     let mut candidates = models
         .into_iter()
         .map(|model| score_model(request, model))
-        .filter(|candidate| !candidate.matched_rules.is_empty())
+        .filter(|candidate| {
+            !candidate.matched_rules.is_empty() || !candidate.failed_rules.is_empty()
+        })
         .collect::<Vec<_>>();
 
     candidates.sort_by(|left, right| {
@@ -21,36 +30,11 @@ pub fn recommend_models(
             .score
             .partial_cmp(&left.score)
             .unwrap_or(Ordering::Equal)
+            .then_with(|| left.failed_rules.len().cmp(&right.failed_rules.len()))
             .then_with(|| left.model.model_name.cmp(&right.model.model_name))
     });
     candidates.truncate(request.limit.unwrap_or(10).max(1));
     candidates
-}
-
-pub fn infer_component_type(module_id: &str) -> Option<String> {
-    let lowered = module_id.to_lowercase();
-    let component = if lowered.contains("timing-belt") {
-        "同步轮同步带"
-    } else if lowered.contains("ball-screw") {
-        "滚珠丝杠"
-    } else if lowered.contains("linear-guide") {
-        "直线导轨"
-    } else if lowered.contains("cylinder") {
-        "气缸"
-    } else if lowered.contains("vacuum") {
-        "真空"
-    } else if lowered.contains("valve") {
-        "电磁阀"
-    } else if lowered.contains("servo") || lowered.contains("stepper") {
-        "伺服/步进电机"
-    } else if lowered.contains("motor") {
-        "普通电机"
-    } else if lowered.contains("indexer") {
-        "分割器"
-    } else {
-        return None;
-    };
-    Some(component.to_string())
 }
 
 fn score_model(
@@ -61,11 +45,12 @@ fn score_model(
     let mut failed_rules = Vec::new();
 
     for requirement in &request.requirements {
-        match find_candidate_value(requirement, &model) {
-            Some((candidate_value, unit))
-                if candidate_value >= normalize_requirement(requirement).0 =>
-            {
-                let required_value = normalize_requirement(requirement).0;
+        let (required_value, required_unit) = normalize_requirement(requirement);
+        match find_candidate_value(requirement, &model, &required_unit) {
+            CandidateLookup::Value {
+                value: candidate_value,
+                unit,
+            } if candidate_value >= required_value => {
                 matched_rules.push(MatchRuleResult {
                     requirement_id: requirement.id.clone(),
                     label: requirement.label.clone(),
@@ -78,8 +63,10 @@ fn score_model(
                     unit,
                 });
             }
-            Some((candidate_value, unit)) => {
-                let required_value = normalize_requirement(requirement).0;
+            CandidateLookup::Value {
+                value: candidate_value,
+                unit,
+            } => {
                 failed_rules.push(MatchRuleResult {
                     requirement_id: requirement.id.clone(),
                     label: requirement.label.clone(),
@@ -92,15 +79,29 @@ fn score_model(
                     unit,
                 });
             }
-            None => {
-                let (required_value, unit) = normalize_requirement(requirement);
+            CandidateLookup::UnitMismatch { candidate_unit } => {
+                failed_rules.push(MatchRuleResult {
+                    requirement_id: requirement.id.clone(),
+                    label: requirement.label.clone(),
+                    message: format!(
+                        "{} 单位不一致：型号库为 {}，需求为 {}",
+                        requirement.label,
+                        display_unit(&candidate_unit),
+                        display_unit(&required_unit)
+                    ),
+                    required_value,
+                    candidate_value: None,
+                    unit: required_unit,
+                });
+            }
+            CandidateLookup::Missing => {
                 failed_rules.push(MatchRuleResult {
                     requirement_id: requirement.id.clone(),
                     label: requirement.label.clone(),
                     message: format!("型号库缺少 {} 对应参数", requirement.label),
                     required_value,
                     candidate_value: None,
-                    unit,
+                    unit: required_unit,
                 });
             }
         }
@@ -116,42 +117,48 @@ fn score_model(
     }
 }
 
+enum CandidateLookup {
+    Value { value: f64, unit: String },
+    UnitMismatch { candidate_unit: String },
+    Missing,
+}
+
 fn find_candidate_value(
     requirement: &RecommendationRequirement,
     model: &VendorModelRecord,
-) -> Option<(f64, String)> {
+    required_unit: &str,
+) -> CandidateLookup {
     let aliases = field_aliases(&requirement.id);
-    aliases.iter().find_map(|alias| {
-        model
-            .normalized_parameters
-            .get(alias)
-            .map(|parameter| (parameter.value, parameter.unit.clone()))
-    })
-}
-
-fn field_aliases(field: &str) -> Vec<String> {
-    match field {
-        "outputTorque" | "totalTorque" | "loadTorque" => {
-            vec!["outputTorque", "totalTorque", "loadTorque", "ratedTorque"]
+    let mut mismatched_unit = None;
+    for alias in aliases {
+        let Some(parameter) = model.normalized_parameters.get(&alias) else {
+            continue;
+        };
+        let (value, unit) = normalize_value(parameter.value, &parameter.unit);
+        if units_compatible(&unit, required_unit) {
+            return CandidateLookup::Value { value, unit };
         }
-        "requiredSpeed" | "motorSpeed" | "outputSpeed" => {
-            vec!["requiredSpeed", "ratedSpeed", "speed", "outputSpeed"]
-        }
-        "power" | "ratedPower" => vec!["power", "ratedPower"],
-        "load" | "loadMass" | "force" | "thrust" => vec!["load", "force", "thrust"],
-        "stroke" => vec!["stroke"],
-        "bore" => vec!["bore"],
-        "vacuumPressure" => vec!["vacuumPressure"],
-        "flowRate" => vec!["flowRate"],
-        "dynamicLoad" => vec!["dynamicLoad"],
-        "staticLoad" => vec!["staticLoad"],
-        _ => return vec![field.to_string()],
+        mismatched_unit.get_or_insert(unit);
     }
-    .into_iter()
-    .map(ToString::to_string)
-    .collect()
+    mismatched_unit
+        .map(|candidate_unit| CandidateLookup::UnitMismatch { candidate_unit })
+        .unwrap_or(CandidateLookup::Missing)
 }
 
 fn normalize_requirement(requirement: &RecommendationRequirement) -> (f64, String) {
     normalize_value(requirement.value, &requirement.unit)
+}
+
+fn units_compatible(candidate_unit: &str, required_unit: &str) -> bool {
+    let candidate = candidate_unit.trim();
+    let required = required_unit.trim();
+    !candidate.is_empty() && !required.is_empty() && candidate.eq_ignore_ascii_case(required)
+}
+
+fn display_unit(unit: &str) -> &str {
+    if unit.trim().is_empty() {
+        "未标单位"
+    } else {
+        unit
+    }
 }

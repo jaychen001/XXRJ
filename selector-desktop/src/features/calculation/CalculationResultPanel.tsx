@@ -1,6 +1,9 @@
+import { useEffect, useState } from "react";
 import { AlertTriangle, CheckCircle2, FileText } from "lucide-react";
 import type { CalculationRequest, CalculationResult } from "../../domain/calculation";
+import type { RecommendationCandidate } from "../../domain/vendor";
 import { ReportExportDialog } from "../reports/ReportExportDialog";
+import { RecommendationPanel } from "./RecommendationPanel";
 
 interface CalculationResultPanelProps {
   result: CalculationResult | null;
@@ -15,6 +18,15 @@ export function CalculationResultPanel({
   caseName,
   notes,
 }: CalculationResultPanelProps) {
+  const [candidates, setCandidates] = useState<RecommendationCandidate[]>([]);
+  const [selectedModelName, setSelectedModelName] = useState<string | null>(null);
+  const resultKey = result ? `${result.moduleId}:${result.formulaVersion}:${result.summary}` : "";
+
+  useEffect(() => {
+    setCandidates([]);
+    setSelectedModelName(null);
+  }, [resultKey]);
+
   if (!result) {
     return (
       <section className="result-panel result-panel--empty">
@@ -54,12 +66,21 @@ export function CalculationResultPanel({
         ))}
       </div>
 
+      <RecommendationPanel
+        result={result}
+        candidates={candidates}
+        selectedModelName={selectedModelName}
+        onCandidatesChange={setCandidates}
+        onSelectedModelNameChange={setSelectedModelName}
+      />
+
       <ReportExportDialog
         caseName={caseName}
         notes={notes}
         request={request}
         result={result}
-        candidates={[]}
+        candidates={candidates}
+        finalModelName={selectedModelName}
       />
 
       <div className="result-panel__split">

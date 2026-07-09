@@ -94,15 +94,28 @@ pub fn normalize_parameters(
 }
 
 pub fn normalize_value(value: f64, unit: &str) -> (f64, String) {
-    let compact = unit.trim().replace('μ', "u").to_lowercase();
+    let compact = unit
+        .trim()
+        .replace('μ', "u")
+        .replace('·', ".")
+        .replace('*', ".")
+        .replace('²', "2")
+        .replace(' ', "")
+        .to_lowercase();
     match compact.as_str() {
+        "%" => (value / 100.0, "ratio".to_string()),
+        "ratio" | "times" | "倍" => (value, "ratio".to_string()),
         "nmm" | "n.mm" | "n-mm" => (value / 1000.0, "Nm".to_string()),
         "kgf.cm" | "kgfcm" => (value * 0.098_066_5, "Nm".to_string()),
+        "n.m" | "n-m" | "nm" => (value, "Nm".to_string()),
         "kw" => (value * 1000.0, "W".to_string()),
         "w" => (value, "W".to_string()),
         "rps" => (value * 60.0, "rpm".to_string()),
         "rpm" | "r/min" | "min-1" => (value, "rpm".to_string()),
+        "m/s" => (value * 1000.0, "mm/s".to_string()),
+        "mm/s" => (value, "mm/s".to_string()),
         "kn" => (value * 1000.0, "N".to_string()),
+        "kgf" => (value * 9.806_65, "N".to_string()),
         "n" => (value, "N".to_string()),
         "m" => (value * 1000.0, "mm".to_string()),
         "mm" => (value, "mm".to_string()),
@@ -111,7 +124,12 @@ pub fn normalize_value(value: f64, unit: &str) -> (f64, String) {
         "kpa" => (value, "kPa".to_string()),
         "m3/min" | "m³/min" => (value * 1000.0, "L/min".to_string()),
         "l/min" | "lpm" => (value, "L/min".to_string()),
-        "nm" | "n.m" | "n-m" => (value, "Nm".to_string()),
+        "km" => (value, "km".to_string()),
+        "h" | "hr" | "hour" => (value, "h".to_string()),
+        "j" => (value, "J".to_string()),
+        "ms" => (value, "ms".to_string()),
+        "s" => (value, "s".to_string()),
+        "kg.m2" | "kg.m^2" | "kgm2" => (value, "kg·m²".to_string()),
         _ => (value, unit.trim().to_string()),
     }
 }
@@ -125,26 +143,51 @@ pub fn canonical_field_for_label(label: &str, unit: &str, fallback_index: usize)
         "brand".to_string()
     } else if contains_any(&text, &["系列", "series"]) {
         "series".to_string()
-    } else if contains_any(&text, &["扭矩", "力矩", "torque"]) || unit_text.contains("nm") {
+    } else if contains_any(&text, &["允许动能", "动能", "kinetic"]) {
+        "kineticEnergy".to_string()
+    } else if contains_any(&text, &["允许力矩", "允许弯矩", "allowable moment"]) {
+        "allowableMoment".to_string()
+    } else if contains_any(&text, &["动额定", "额定动载荷", "dynamic"]) {
+        "dynamicLoadRating".to_string()
+    } else if contains_any(&text, &["静额定", "额定静载荷", "static"]) {
+        "staticLoadRating".to_string()
+    } else if contains_any(&text, &["扭矩", "转矩", "力矩", "torque", "moment"])
+        || unit_text.contains("nm")
+    {
         "outputTorque".to_string()
-    } else if contains_any(&text, &["转速", "速度", "speed"]) || unit_text.contains("rpm") {
+    } else if contains_any(&text, &["转速", "rpm"]) || unit_text.contains("rpm") {
         "requiredSpeed".to_string()
+    } else if contains_any(&text, &["线速度", "带速", "链速", "速度", "speed"]) {
+        "linearSpeed".to_string()
     } else if contains_any(&text, &["功率", "power"]) || unit_text == "kw" || unit_text == "w" {
         "power".to_string()
-    } else if contains_any(&text, &["缸径", "bore"]) {
+    } else if contains_any(&text, &["缸径", "轴径", "直径", "bore", "diameter"]) {
         "bore".to_string()
     } else if contains_any(&text, &["行程", "stroke"]) {
         "stroke".to_string()
-    } else if contains_any(&text, &["推力", "负载", "载荷", "force", "load"]) {
+    } else if contains_any(
+        &text,
+        &[
+            "推力",
+            "夹持力",
+            "吸附力",
+            "拉力",
+            "负载",
+            "载荷",
+            "force",
+            "load",
+            "thrust",
+        ],
+    ) {
         "load".to_string()
     } else if contains_any(&text, &["真空", "vacuum"]) {
         "vacuumPressure".to_string()
     } else if contains_any(&text, &["流量", "flow"]) {
         "flowRate".to_string()
-    } else if contains_any(&text, &["动额定", "dynamic"]) {
-        "dynamicLoad".to_string()
-    } else if contains_any(&text, &["静额定", "static"]) {
-        "staticLoad".to_string()
+    } else if contains_any(&text, &["寿命", "life"]) {
+        "ratedLife".to_string()
+    } else if contains_any(&text, &["重复定位", "精度", "accuracy", "repeatability"]) {
+        "repeatability".to_string()
     } else {
         format!("parameter{}", fallback_index + 1)
     }
@@ -154,14 +197,19 @@ pub fn label_for_field(field: &str) -> String {
     match field {
         "outputTorque" => "输出扭矩",
         "requiredSpeed" => "需求转速",
+        "linearSpeed" => "线速度",
         "power" => "功率",
         "bore" => "缸径",
         "stroke" => "行程",
         "load" => "负载/推力",
         "vacuumPressure" => "真空压力",
         "flowRate" => "流量",
-        "dynamicLoad" => "动额定载荷",
-        "staticLoad" => "静额定载荷",
+        "dynamicLoad" | "dynamicLoadRating" => "动额定载荷",
+        "staticLoad" | "staticLoadRating" => "静额定载荷",
+        "allowableMoment" => "允许力矩",
+        "kineticEnergy" => "允许动能",
+        "ratedLife" => "额定寿命",
+        "repeatability" => "重复定位精度",
         _ => field,
     }
     .to_string()

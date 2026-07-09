@@ -3,6 +3,7 @@ mod import_job;
 pub mod models;
 mod pdf_import;
 mod recommendation;
+mod recommendation_aliases;
 mod repository;
 mod spreadsheet_import;
 

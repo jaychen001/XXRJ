@@ -10,6 +10,7 @@ interface ReportExportDialogProps {
   request: CalculationRequest | null;
   result: CalculationResult | null;
   candidates: RecommendationCandidate[];
+  finalModelName?: string | null;
 }
 
 export function ReportExportDialog({
@@ -18,6 +19,7 @@ export function ReportExportDialog({
   request,
   result,
   candidates,
+  finalModelName = null,
 }: ReportExportDialogProps) {
   const [format, setFormat] = useState("pdf");
   const [outputPath, setOutputPath] = useState("");
@@ -44,7 +46,7 @@ export function ReportExportDialog({
         request,
         result,
         candidates,
-        finalModelName: null,
+        finalModelName,
       });
       setStatus(`已导出：${record.path}`);
     } catch (error: unknown) {

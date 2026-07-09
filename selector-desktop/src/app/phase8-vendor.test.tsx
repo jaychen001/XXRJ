@@ -17,7 +17,7 @@ describe("厂家样本能力的用户可见边界", () => {
     setupAppInvokeMock(invokeMock);
   });
 
-  it("不在主界面暴露独立厂家样本库和型号匹配入口", async () => {
+  it("主界面不暴露独立厂家样本库，计算结果页可匹配型号", async () => {
     const user = userEvent.setup();
     render(<App />);
 
@@ -29,10 +29,20 @@ describe("厂家样本能力的用户可见边界", () => {
 
     expect(await screen.findByText("摩擦力")).toBeInTheDocument();
     expect(screen.queryByText("厂家型号推荐")).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /匹配型号/ })).not.toBeInTheDocument();
-    expect(invokeMock).not.toHaveBeenCalledWith(
-      "recommend_vendor_models",
-      expect.anything(),
-    );
+    await user.click(screen.getByRole("button", { name: /匹配型号/ }));
+
+    expect(await screen.findByText("SV-400")).toBeInTheDocument();
+    expect(screen.getByText("SV-400 输出扭矩满足")).toBeInTheDocument();
+    expect(invokeMock).toHaveBeenCalledWith("recommend_vendor_models", {
+      request: expect.objectContaining({
+        moduleId: "timing-belt-basic",
+        componentType: null,
+        limit: 5,
+        requirements: expect.arrayContaining([
+          expect.objectContaining({ id: "outputTorque", unit: "Nm" }),
+          expect.objectContaining({ id: "requiredSpeed", unit: "rpm" }),
+        ]),
+      }),
+    });
   });
 });
