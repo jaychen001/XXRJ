@@ -3,7 +3,7 @@ use crate::engine::models::{CalculationRequest, CalculationResult, FieldError, M
 use super::super::common;
 
 pub const MODULE_ID: &str = "sensor-rule-selector";
-const SOURCE: &str = "PDF P123 / 文档页 120 / 传感器";
+const SOURCE: &str = "工程规则库 / 传感器";
 
 pub fn definition() -> ModuleDefinition {
     ModuleDefinition {

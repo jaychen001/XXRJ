@@ -38,6 +38,10 @@
 | 直线轴承 | THK - Rated Load and Nominal Life: https://www.thk.com/eu/en/products/other_linear_motion_guides/linear_bushing/selection/0002/ | 直线轴承 50 km 名义寿命和 C/P 寿命公式 |
 | 联轴器 | SKF Couplings Catalogue: https://cdn.skfmediahub.skf.com/api/public/094e20a34cf10d47/pdf_preview_medium/15822_%28EN%29_SKF_Couplings_pdf_preview_medium.pdf | 联轴器额定值 = 工况系数 × 系统扭矩，且需按转速和安装偏差复核 |
 | 联轴器 | KTR Coupling Selection Operating Factors: https://www.ktr.com/fileadmin/ktr/media/Tools_Downloads/kataloge/coupling_selection_operating_factors.pdf | 额定扭矩、最大扭矩、温度系数和冲击工况复核 |
+| 机器人 | ABB - Robot selector: https://new.abb.com/products/robotics/industrial-robots/robot-selector | 机器人按负载、臂展、应用类型等条件初筛 |
+| 拖链 | igus - e-chain selection: https://www.igus.com/info/energy-chains-selection | 拖链按行程、速度、弯曲半径和线缆空间初筛 |
+| 传感器 | OMRON - Sensor selector: https://www.ia.omron.com/support/selection/sensor/ | 传感器按检测对象、距离、环境和安装形式初筛 |
+| 材料/机加工/表面处理 | MISUMI 技术资料: https://us.misumi-ec.com/service/tech-info/ | 常用材料、加工方式、热处理和表面处理的工程初筛参考 |
 
 ## 3. 高频模块输入重构方向
 
@@ -65,6 +69,7 @@
 | 手指气缸 | 工件质量、夹持摩擦系数、夹爪数量、夹持力臂、搬运加速度、姿态重力系数、外部扰动力、候选单爪夹持力、候选允许手指力矩 | 单爪夹持力、总夹持力、夹持力矩、夹持力余量和手指力矩余量 |
 | 滑台气缸 | 负载质量、导向摩擦系数、加速度、行程、移动时间、负载率上限、外部阻力、垂直负载系数、候选额定推力、负载偏心距、候选允许力矩、候选允许动能 | 推力需求、平均速度、负载动能、偏载力矩、推力余量、力矩余量和动能余量 |
 | 旋转气缸 | 负载惯量、旋转角度、旋转时间、外部阻力矩、扭矩负载率上限、候选额定扭矩、候选允许动能 | 峰值角速度、角加速度、需求扭矩、负载动能、扭矩余量、动能余量和最小旋转时间 |
+| 规则型辅助选型 | 机器人负载/臂展/节拍/精度，拖链行程/弯曲半径/填充率，传感器对象/距离/环境，材料和工艺需求等 | 推荐类型、判断依据、风险提示和可用于样本匹配的需求参数 |
 
 ### 伺服电机 / 步进电机
 
@@ -553,6 +558,27 @@
 - 峰值功率
 - 冲击和停歇余量风险
 
+### 规则型辅助选型
+
+设计师通常已知：
+
+- 机器人：负载、臂展、节拍、重复精度和应用场景
+- 拖链：行程、弯曲半径、线缆数量、填充率和运行速度
+- 传感器：检测对象、检测距离、响应时间、环境等级和安装空间
+- 材料：强度、耐磨、耐腐蚀、重量和食品医药需求
+- 机加工：公差、批量、硬度、结构复杂度和表面要求
+- 热处理与表面处理：目标硬度、耐磨、防腐、外观和变形敏感度
+- 常用五金件：载荷、振动、调节频率、安装空间和拆装需求
+- 安全系数
+
+输出：
+
+- 推荐类型
+- 关键问题的过程化判断
+- 风险提示
+- 可用于样本库过滤的需求参数
+- 需要人工复核的安装、采购、加工或现场条件
+
 ## 4. 下一步公式补强顺序
 
-1. 机器人、拖链、传感器、材料、机加工等规则型模块
+1. 厂家样本库字段映射与型号推荐规则

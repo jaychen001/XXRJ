@@ -3,7 +3,7 @@ use crate::engine::models::{CalculationRequest, CalculationResult, FieldError, M
 use super::super::common;
 
 pub const MODULE_ID: &str = "heat-surface-rule-selector";
-const SOURCE: &str = "PDF P141 / 文档页 138 / 热处理&表面处理";
+const SOURCE: &str = "工程规则库 / 热处理&表面处理";
 
 pub fn definition() -> ModuleDefinition {
     ModuleDefinition {

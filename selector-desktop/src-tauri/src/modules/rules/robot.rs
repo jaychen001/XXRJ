@@ -3,7 +3,7 @@ use crate::engine::models::{CalculationRequest, CalculationResult, FieldError, M
 use super::super::common;
 
 pub const MODULE_ID: &str = "robot-rule-selector";
-const SOURCE: &str = "PDF P67 / 文档页 64 / 机器人";
+const SOURCE: &str = "工程规则库 / 机器人";
 
 pub fn definition() -> ModuleDefinition {
     ModuleDefinition {

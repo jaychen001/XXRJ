@@ -3,7 +3,7 @@ use crate::engine::models::{CalculationRequest, CalculationResult, FieldError, M
 use super::super::common;
 
 pub const MODULE_ID: &str = "cable-chain-rule-selector";
-const SOURCE: &str = "PDF P121 / 文档页 118 / 拖链";
+const SOURCE: &str = "工程规则库 / 拖链";
 
 pub fn definition() -> ModuleDefinition {
     ModuleDefinition {
