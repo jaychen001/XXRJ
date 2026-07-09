@@ -1,4 +1,4 @@
-import { Database, FileText, PanelRightClose, PanelRightOpen, ShieldAlert } from "lucide-react";
+import { Calculator, Database, PanelRightClose, PanelRightOpen, ShieldAlert } from "lucide-react";
 import { RiskBadge } from "./RiskBadge";
 import "./trace-panel.css";
 
@@ -28,10 +28,10 @@ export function TracePanel({
   return (
     <aside
       className={`trace-panel${isCollapsed ? " trace-panel--collapsed" : ""}`}
-      aria-label="来源与状态追溯"
+      aria-label="数据与状态"
     >
       <div className="trace-panel__header">
-        <h2>来源与状态</h2>
+        <h2>数据与状态</h2>
         <div className="trace-panel__header-actions">
           <RiskBadge tone={isLoading ? "neutral" : healthTone}>
             {isLoading ? "检查中" : health?.status === "ok" ? "数据库正常" : "待连接"}
@@ -39,8 +39,8 @@ export function TracePanel({
           <button
             className="trace-panel__toggle"
             type="button"
-            aria-label={isCollapsed ? "展开追溯区" : "折叠追溯区"}
-            title={isCollapsed ? "展开追溯区" : "折叠追溯区"}
+            aria-label={isCollapsed ? "展开状态区" : "折叠状态区"}
+            title={isCollapsed ? "展开状态区" : "折叠状态区"}
             onClick={onToggleCollapsed}
           >
             {isCollapsed ? (
@@ -78,11 +78,11 @@ export function TracePanel({
 
           <section className="trace-section">
             <div className="trace-section__title">
-              <FileText size={16} aria-hidden="true" />
-              <span>根目录 PDF</span>
+              <Calculator size={16} aria-hidden="true" />
+              <span>工程公式库</span>
             </div>
             <p>
-              PDF 目录、页码索引、知识条目和参数候选通过本地导入命令写入 SQLite。
+              计算按工程公式、单位换算和安全系数执行，结果页只展示过程、结论和风险。
             </p>
           </section>
 
@@ -92,7 +92,7 @@ export function TracePanel({
               <span>当前边界</span>
             </div>
             <p>
-              知识检索只作为方法依据；当前已支持同步带公式计算与案例追溯，型号推荐和厂家样本匹配按后续 Phase 继续落地。
+              计算结果用于工程初选；最终型号仍需结合厂家样本、安装空间和现场工况复核。
             </p>
           </section>
         </>
