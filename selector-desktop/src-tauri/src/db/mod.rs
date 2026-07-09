@@ -7,6 +7,7 @@ use tauri::{AppHandle, Manager};
 use thiserror::Error;
 
 const DATABASE_FILE_NAME: &str = "selector.db";
+const DATA_DIR_ENV_VAR: &str = "SELECTOR_DESKTOP_DATA_DIR";
 const MIGRATIONS: [(&str, &str); 2] = [
     ("0001_init", include_str!("../../migrations/0001_init.sql")),
     (
@@ -112,9 +113,24 @@ pub fn get_database_health(app_handle: AppHandle) -> Result<DatabaseHealth, Stri
 }
 
 fn database_path(app_handle: &AppHandle) -> Result<PathBuf, DatabaseError> {
-    let app_data_dir = app_handle.path().app_data_dir()?;
-    fs::create_dir_all(&app_data_dir)?;
-    Ok(app_data_dir.join(DATABASE_FILE_NAME))
+    let data_dir = match data_dir_override() {
+        Some(path) => path,
+        None => app_handle.path().app_data_dir()?,
+    };
+    database_path_from_dir(data_dir)
+}
+
+fn data_dir_override() -> Option<PathBuf> {
+    data_dir_override_from(std::env::var_os(DATA_DIR_ENV_VAR))
+}
+
+fn data_dir_override_from(value: Option<std::ffi::OsString>) -> Option<PathBuf> {
+    value.filter(|value| !value.is_empty()).map(PathBuf::from)
+}
+
+fn database_path_from_dir(data_dir: PathBuf) -> Result<PathBuf, DatabaseError> {
+    fs::create_dir_all(&data_dir)?;
+    Ok(data_dir.join(DATABASE_FILE_NAME))
 }
 
 #[cfg(test)]
@@ -164,5 +180,38 @@ mod tests {
         assert_eq!(migration_count, 2);
 
         Ok(())
+    }
+
+    #[test]
+    fn database_path_uses_provided_data_dir_without_appdata() -> Result<(), DatabaseError> {
+        let data_dir = std::env::temp_dir().join(format!(
+            "selector-db-test-{}",
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        let path = database_path_from_dir(data_dir.clone())?;
+
+        assert_eq!(path, data_dir.join(DATABASE_FILE_NAME));
+        assert!(data_dir.exists());
+
+        fs::remove_dir_all(data_dir)?;
+        Ok(())
+    }
+
+    #[test]
+    fn data_dir_override_ignores_missing_or_empty_values() {
+        assert!(data_dir_override_from(None).is_none());
+        assert!(data_dir_override_from(Some(std::ffi::OsString::new())).is_none());
+    }
+
+    #[test]
+    fn data_dir_override_accepts_configured_path() {
+        let path = PathBuf::from("D:\\isolated-selector-data");
+        assert_eq!(
+            data_dir_override_from(Some(path.clone().into_os_string())),
+            Some(path)
+        );
     }
 }

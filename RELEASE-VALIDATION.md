@@ -8,13 +8,14 @@
 - Windows 桌面离线应用。
 - Phase 9 交付内容：结果页报告导出、开发侧覆盖/回归验证、Windows 安装包。
 - 打包脚本增强：自动定位 Visual Studio C++ 环境、从任意工作目录启动、清理旧 bundle、输出 SHA256 并执行隐私扫描。
+- 冒烟测试增强：通过 `SELECTOR_DESKTOP_DATA_DIR` 将数据库写入隔离临时目录。
 
 ## 打包产物
 
 | 产物 | 文件大小 | SHA256 |
 | --- | ---: | --- |
-| `selector-desktop/src-tauri/target/release/bundle/msi/Selector Desktop_0.1.0_x64_en-US.msi` | 6,762,496 bytes | `DC0261C73E3019439770A581034146F5B3008F9D2CC7E974D3D4B84A789EA385` |
-| `selector-desktop/src-tauri/target/release/bundle/nsis/Selector Desktop_0.1.0_x64-setup.exe` | 4,694,769 bytes | `17ABA07AB462BE5CD712BFC3A982D078CAEF539D18C2AB3C442D128C5A0B8FD8` |
+| `selector-desktop/src-tauri/target/release/bundle/msi/Selector Desktop_0.1.0_x64_en-US.msi` | 6,754,304 bytes | `0B352524E558B3C277EA957B2396FF7A5C9010BAE5EA8EF97683AA1B8503CF69` |
+| `selector-desktop/src-tauri/target/release/bundle/nsis/Selector Desktop_0.1.0_x64-setup.exe` | 4,691,458 bytes | `AD25B9829869E3A675695D9FBD849B20CB1B33818BC64A26C764794E97C367B4` |
 
 ## 验证命令
 
@@ -30,13 +31,19 @@ cmd /c pnpm.cmd test
 cargo test
 ```
 
-结果：15 条 Rust 后端测试通过，其中包含 `qa::regression_runner::tests::regression_runner_passes_all_fixture_groups`，说明 QA 回归样例执行器已被测试覆盖。
+结果：18 条 Rust 后端测试通过，其中包含 `qa::regression_runner::tests::regression_runner_passes_all_fixture_groups`，并覆盖数据库隔离目录解析。
 
 ```powershell
 cmd /c pnpm.cmd package:windows
 ```
 
 结果：MSI 安装包和 NSIS 安装包均已生成，脚本自动输出 SHA256 并通过隐私扫描。
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File selector-desktop/scripts/smoke-release-app.ps1 -StartupSeconds 5
+```
+
+结果：release exe 启动成功，临时数据库创建在 `.codex/release-smoke/data/selector.db`，进程已关闭，临时目录已清理。
 
 ## 隐私审计
 
@@ -67,9 +74,19 @@ selector-desktop/src-tauri/target/release/bundle
 selector-desktop/src-tauri/target/release/bundle/nsis/Selector Desktop_0.1.0_x64-setup.exe
 ```
 
-本次未自动执行安装启动冒烟测试。
+本次已执行 release exe 启动冒烟测试，未执行静默安装/卸载闭环。
 
-原因：当前应用没有独立的测试数据目录开关。直接启动安装后的程序会写入正常的 `%APPDATA%\com.sckj.selector\selector.db`，不符合“测试不写生产数据目录”的规则。后续要补严格安装冒烟测试，应先增加明确的测试数据目录开关，再执行静默安装、启动、数据库初始化和卸载闭环。
+执行方式：
+- 设置 `SELECTOR_DESKTOP_DATA_DIR` 到 `.codex/release-smoke/data`。
+- 启动 `selector-desktop/src-tauri/target/release/selector-desktop.exe`。
+- 等待 5 秒，确认进程未退出。
+- 确认 `selector.db` 在隔离目录创建。
+- 停止进程并清理临时目录。
+
+观察结果：
+- release exe 冒烟测试退出码：`0`。
+- 数据库初始化位置：`.codex/release-smoke/data/selector.db`。
+- 未写入正常 `%APPDATA%\com.sckj.selector\selector.db`。
 
 ## 结论
 
