@@ -27,10 +27,17 @@
       { "id": "targetSpeed", "value": 300.0, "unit": "mm/s" },
       { "id": "accelerationTime", "value": 0.2, "unit": "s" },
       { "id": "frictionCoefficient", "value": 0.05, "unit": "ratio" },
-      { "id": "efficiency", "value": 0.9, "unit": "ratio" }
+      { "id": "externalForce", "value": 0.0, "unit": "N" },
+      { "id": "verticalLoadFactor", "value": 0.0, "unit": "ratio" },
+      { "id": "efficiency", "value": 0.9, "unit": "ratio" },
+      { "id": "supportSpan", "value": 600.0, "unit": "mm" },
+      { "id": "screwRootDiameter", "value": 12.0, "unit": "mm" },
+      { "id": "supportCoefficient", "value": 15.1, "unit": "ratio" },
+      { "id": "dynamicLoadRating", "value": 5000.0, "unit": "N" },
+      { "id": "requiredTravelLife", "value": 10000.0, "unit": "km" }
     ],
-    "expectedStepLabels": ["直动惯量", "角加速度", "加速力矩", "匀速力矩", "总力矩", "需求转速"],
-    "expectedRequirementIds": ["reflectedInertia", "totalTorque", "requiredSpeed"]
+    "expectedStepLabels": ["直动惯量", "角加速度", "加速力矩", "匀速力矩", "总力矩", "需求转速", "临界转速", "行走寿命"],
+    "expectedRequirementIds": ["reflectedInertia", "totalTorque", "requiredSpeed", "criticalSpeed", "travelLife"]
   },
   {
     "name": "通用电机输送线例题",

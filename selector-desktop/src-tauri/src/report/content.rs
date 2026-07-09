@@ -38,7 +38,10 @@ pub fn report_lines(payload: &ReportPayload) -> Vec<String> {
     lines.push(String::new());
     lines.push("风险与规则".to_string());
     lines.extend(payload.result.rules.iter().map(|rule| {
-        format!("{}：{}；依据 {}", rule.label, rule.recommendation, rule.basis)
+        format!(
+            "{}：{}；依据 {}",
+            rule.label, rule.recommendation, rule.basis
+        )
     }));
     lines.extend(
         payload

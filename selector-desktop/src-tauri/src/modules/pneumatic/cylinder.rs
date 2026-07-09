@@ -3,7 +3,7 @@ use crate::engine::models::{CalculationRequest, CalculationResult, FieldError, M
 use super::super::common;
 
 pub const MODULE_ID: &str = "pneumatic-cylinder-sizing";
-const SOURCE: &str = "PDF P69 / 文档页 66 / 气动执行元件";
+const SOURCE: &str = "工程公式库 / 气缸";
 
 pub fn definition() -> ModuleDefinition {
     ModuleDefinition {
@@ -42,6 +42,24 @@ pub fn definition() -> ModuleDefinition {
                 SOURCE,
             ),
             common::field(
+                "externalForce",
+                "外部阻力",
+                "N",
+                0.0,
+                0.0,
+                "压紧、弹簧、切削、顶升机构等额外反向力；没有填 0",
+                SOURCE,
+            ),
+            common::field(
+                "verticalLoadFactor",
+                "垂直负载系数",
+                "ratio",
+                0.0,
+                0.0,
+                "水平推动填 0，垂直顶升填 1，斜面按 sinθ 填",
+                SOURCE,
+            ),
+            common::field(
                 "workingPressure",
                 "工作压力",
                 "MPa",
@@ -68,6 +86,15 @@ pub fn definition() -> ModuleDefinition {
                 "密封和机构损失修正",
                 SOURCE,
             ),
+            common::field(
+                "areaRatio",
+                "有效面积系数",
+                "ratio",
+                0.01,
+                1.0,
+                "伸出侧填 1；回程有活塞杆面积损失时填样本面积比",
+                SOURCE,
+            ),
         ],
     }
 }
@@ -80,14 +107,19 @@ pub fn calculate(request: &CalculationRequest) -> Result<CalculationResult, Fiel
     let mass = common::positive(&fields, "loadMass")?;
     let friction = common::positive_or_zero(&fields, "frictionCoefficient")?;
     let acceleration = common::positive_or_zero(&fields, "acceleration")?;
+    let external_force = common::positive_or_zero(&fields, "externalForce")?;
+    let vertical_load_factor = common::positive_or_zero(&fields, "verticalLoadFactor")?;
     let pressure = common::positive(&fields, "workingPressure")?;
     let load_rate = common::efficiency(&fields, "loadRateLimit")?;
     let efficiency = common::efficiency(&fields, "mechanicalEfficiency")?;
+    let area_ratio = common::efficiency(&fields, "areaRatio")?;
     let friction_force = mass * 9.80665 * friction;
     let acceleration_force = mass * acceleration;
-    let basic_force = friction_force + acceleration_force;
+    let gravity_force = mass * 9.80665 * vertical_load_factor;
+    let basic_force = friction_force + acceleration_force + gravity_force + external_force;
     let output_force = basic_force * safety_factor / (load_rate * efficiency);
-    let bore_diameter = (4.0 * output_force / (std::f64::consts::PI * pressure)).sqrt();
+    let bore_diameter =
+        (4.0 * output_force / (std::f64::consts::PI * pressure * area_ratio)).sqrt();
     let mut risks = common::safety_risk(safety_factor, &source);
     if load_rate > 0.7 {
         risks.push(common::risk(
@@ -135,12 +167,22 @@ pub fn calculate(request: &CalculationRequest) -> Result<CalculationResult, Fiel
                 &source,
             ),
             common::step(
+                "垂直负载力",
+                "Fg = m * g * Kv",
+                format!("{mass} * 9.80665 * {}", common::fmt(vertical_load_factor)),
+                gravity_force,
+                "N",
+                &source,
+            ),
+            common::step(
                 "负载率修正",
-                "F = (Ff + Fa) * K / (η * λ)",
+                "F = (Ff + Fa + Fg + Fe) * K / (η * λ)",
                 format!(
-                    "({} + {}) * {} / ({} * {})",
+                    "({} + {} + {} + {}) * {} / ({} * {})",
                     common::fmt(friction_force),
                     common::fmt(acceleration_force),
+                    common::fmt(gravity_force),
+                    common::fmt(external_force),
                     common::fmt(safety_factor),
                     common::fmt(efficiency),
                     common::fmt(load_rate)
@@ -151,11 +193,12 @@ pub fn calculate(request: &CalculationRequest) -> Result<CalculationResult, Fiel
             ),
             common::step(
                 "缸径需求",
-                "D = sqrt(4F / (πP))",
+                "D = sqrt(4F / (πPφ))",
                 format!(
-                    "sqrt(4*{} / (π*{}))",
+                    "sqrt(4*{} / (π*{}*{}))",
                     common::fmt(output_force),
-                    common::fmt(pressure)
+                    common::fmt(pressure),
+                    common::fmt(area_ratio)
                 ),
                 bore_diameter,
                 "mm",
@@ -174,6 +217,7 @@ pub fn calculate(request: &CalculationRequest) -> Result<CalculationResult, Fiel
         vec![
             common::requirement("frictionForce", "摩擦力", friction_force, "N"),
             common::requirement("accelerationForce", "加速力", acceleration_force, "N"),
+            common::requirement("gravityForce", "垂直负载力", gravity_force, "N"),
             common::requirement("outputForce", "选型输出力", output_force, "N"),
             common::requirement("boreDiameter", "缸径需求", bore_diameter, "mm"),
         ],

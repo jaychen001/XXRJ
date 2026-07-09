@@ -3,7 +3,7 @@ use crate::engine::models::{CalculationRequest, CalculationResult, FieldError, M
 use super::super::common;
 
 pub const MODULE_ID: &str = "servo-stepper-sizing";
-const SOURCE: &str = "PDF P4 / 文档页 1 / 电机篇 / 伺服步进";
+const SOURCE: &str = "工程公式库 / 伺服步进";
 
 pub fn definition() -> ModuleDefinition {
     ModuleDefinition {
@@ -11,7 +11,7 @@ pub fn definition() -> ModuleDefinition {
         name: "伺服/步进选型计算".to_string(),
         category: "驱动".to_string(),
         description: "面向直线机构的转速、力矩、惯量比和分辨率复核。".to_string(),
-        source_chapter: "电机篇".to_string(),
+        source_chapter: "驱动电机".to_string(),
         source_page: SOURCE.to_string(),
         fields: vec![
             common::field(
@@ -20,7 +20,7 @@ pub fn definition() -> ModuleDefinition {
                 "kg",
                 0.0,
                 8.0,
-                "直线运动等效负载",
+                "机构实际移动的总质量，含夹具和工件",
                 SOURCE,
             ),
             common::field_with_units(
@@ -59,7 +59,25 @@ pub fn definition() -> ModuleDefinition {
                 "ratio",
                 0.0,
                 0.1,
-                "机构摩擦系数",
+                "导轨、同步带或丝杠等效摩擦系数",
+                SOURCE,
+            ),
+            common::field(
+                "externalForce",
+                "外部阻力",
+                "N",
+                0.0,
+                0.0,
+                "气缸、弹簧、压紧、切削等反向外力；没有填 0",
+                SOURCE,
+            ),
+            common::field(
+                "verticalLoadFactor",
+                "垂直负载系数",
+                "ratio",
+                0.0,
+                0.0,
+                "水平运动填 0，垂直上升填 1，斜面按 sinθ 填",
                 SOURCE,
             ),
             common::field(
@@ -126,6 +144,8 @@ pub fn calculate(request: &CalculationRequest) -> Result<CalculationResult, Fiel
         "accelerationTime",
     )?;
     let friction = common::positive_or_zero(&fields, "frictionCoefficient")?;
+    let external_force = common::positive_or_zero(&fields, "externalForce")?;
+    let vertical_load_factor = common::positive_or_zero(&fields, "verticalLoadFactor")?;
     let efficiency = common::efficiency(&fields, "efficiency")?;
     let motor_inertia = common::positive(&fields, "motorInertia")?;
     let encoder_resolution = common::positive(&fields, "encoderResolution")?;
@@ -137,7 +157,8 @@ pub fn calculate(request: &CalculationRequest) -> Result<CalculationResult, Fiel
     let acceleration = speed_m_s / accel_time;
     let acceleration_force = mass * acceleration;
     let friction_force = mass * 9.80665 * friction;
-    let total_force = friction_force + acceleration_force;
+    let gravity_force = mass * 9.80665 * vertical_load_factor;
+    let total_force = friction_force + acceleration_force + gravity_force + external_force;
     let total_torque = total_force * travel_m / std::f64::consts::TAU * safety_factor / efficiency;
     let inertia_ratio = reflected_inertia / motor_inertia;
     let resolution_mm = travel_mm / encoder_resolution;
@@ -202,12 +223,22 @@ pub fn calculate(request: &CalculationRequest) -> Result<CalculationResult, Fiel
                 &source,
             ),
             common::step(
+                "垂直负载力",
+                "Fg = m * g * Kv",
+                format!("{mass} * 9.80665 * {}", common::fmt(vertical_load_factor)),
+                gravity_force,
+                "N",
+                &source,
+            ),
+            common::step(
                 "总力矩",
-                "T = (Ff + Fa) * L / 2π * K / η",
+                "T = (Ff + Fa + Fg + Fe) * L / 2π * K / η",
                 format!(
-                    "({} + {}) * {} / 2π * {} / {}",
+                    "({} + {} + {} + {}) * {} / 2π * {} / {}",
                     common::fmt(friction_force),
                     common::fmt(acceleration_force),
+                    common::fmt(gravity_force),
+                    common::fmt(external_force),
                     common::fmt(travel_m),
                     common::fmt(safety_factor),
                     common::fmt(efficiency)

@@ -3,7 +3,7 @@ use crate::engine::models::{CalculationRequest, CalculationResult, FieldError, M
 use super::super::common;
 
 pub const MODULE_ID: &str = "vacuum-suction-sizing";
-const SOURCE: &str = "PDF P98 / 文档页 95 / 真空吸附";
+const SOURCE: &str = "工程公式库 / 真空吸附";
 
 pub fn definition() -> ModuleDefinition {
     ModuleDefinition {
@@ -11,7 +11,7 @@ pub fn definition() -> ModuleDefinition {
         name: "真空吸附".to_string(),
         category: "气动".to_string(),
         description: "按工件质量、加速度、真空压力和吸盘数量估算吸附力与吸盘直径。".to_string(),
-        source_chapter: "气动执行元件".to_string(),
+        source_chapter: "真空吸附".to_string(),
         source_page: SOURCE.to_string(),
         fields: vec![
             common::field(
@@ -52,11 +52,20 @@ pub fn definition() -> ModuleDefinition {
             ),
             common::field(
                 "leakageFactor",
-                "泄漏修正",
+                "有效吸附率",
                 "ratio",
                 0.01,
                 0.8,
-                "表面粗糙、漏气和姿态修正",
+                "表面粗糙、漏气、材料透气造成的有效真空比例",
+                SOURCE,
+            ),
+            common::field(
+                "orientationFactor",
+                "姿态修正系数",
+                "ratio",
+                1.0,
+                1.0,
+                "水平上提填 1；垂直壁面、侧向搬运或冲击明显时填更高值",
                 SOURCE,
             ),
         ],
@@ -73,7 +82,9 @@ pub fn calculate(request: &CalculationRequest) -> Result<CalculationResult, Fiel
     let vacuum_kpa = common::positive(&fields, "vacuumPressure")?;
     let cup_count = common::positive(&fields, "cupCount")?;
     let leakage = common::efficiency(&fields, "leakageFactor")?;
-    let suction_force = mass * (9.80665 + acceleration) * safety_factor / leakage;
+    let orientation_factor = common::positive(&fields, "orientationFactor")?;
+    let suction_force =
+        mass * (9.80665 + acceleration) * safety_factor * orientation_factor / leakage;
     let total_area_m2 = suction_force / (vacuum_kpa * 1000.0);
     let cup_area_m2 = total_area_m2 / cup_count;
     let cup_diameter_mm = (4.0 * cup_area_m2 / std::f64::consts::PI).sqrt() * 1000.0;
@@ -105,12 +116,13 @@ pub fn calculate(request: &CalculationRequest) -> Result<CalculationResult, Fiel
         vec![
             common::step(
                 "吸附力",
-                "F = m * (g+a) * K / η",
+                "F = m * (g+a) * K * Ko / η",
                 format!(
-                    "{} * (9.80665+{}) * {} / {}",
+                    "{} * (9.80665+{}) * {} * {} / {}",
                     common::fmt(mass),
                     common::fmt(acceleration),
                     common::fmt(safety_factor),
+                    common::fmt(orientation_factor),
                     common::fmt(leakage)
                 ),
                 suction_force,

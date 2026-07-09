@@ -3,14 +3,15 @@ use crate::engine::models::{CalculationRequest, CalculationResult, FieldError, M
 use super::super::common;
 
 pub const MODULE_ID: &str = "linear-guide-sizing";
-const SOURCE: &str = "PDF P103 / 文档页 100 / 直线导轨";
+const SOURCE: &str = "工程公式库 / 直线导轨";
 
 pub fn definition() -> ModuleDefinition {
     ModuleDefinition {
         id: MODULE_ID.to_string(),
         name: "直线导轨".to_string(),
         category: "支撑导向".to_string(),
-        description: "按负载、滑块数量、动载额定值和安装姿态估算导轨载荷余量。".to_string(),
+        description: "按负载、滑块数量、动载额定值、冲击系数和目标寿命估算导轨载荷余量。"
+            .to_string(),
         source_chapter: "直线导轨".to_string(),
         source_page: SOURCE.to_string(),
         fields: vec![
@@ -50,6 +51,15 @@ pub fn definition() -> ModuleDefinition {
                 "速度、冲击和安装姿态修正",
                 SOURCE,
             ),
+            common::field(
+                "requiredTravelLife",
+                "目标行走寿命",
+                "km",
+                0.0,
+                10000.0,
+                "按设备寿命、节拍和行程折算的累计行走距离",
+                SOURCE,
+            ),
             common::field_with_units(
                 "offsetDistance",
                 "偏载距离",
@@ -73,6 +83,7 @@ pub fn calculate(request: &CalculationRequest) -> Result<CalculationResult, Fiel
     let sliders = common::positive(&fields, "sliderCount")?;
     let rating = common::positive(&fields, "dynamicLoadRating")?;
     let impact = common::positive(&fields, "impactFactor")?;
+    let required_travel_life = common::positive_or_zero(&fields, "requiredTravelLife")?;
     let offset_m = common::convert(
         common::positive_or_zero(&fields, "offsetDistance")?,
         common::unit(&fields, "offsetDistance")?,
@@ -81,14 +92,23 @@ pub fn calculate(request: &CalculationRequest) -> Result<CalculationResult, Fiel
     )?;
     let total_load = mass * 9.80665 * impact * safety_factor;
     let load_per_slider = total_load / sliders;
-    let static_margin = rating / load_per_slider;
+    let load_margin = rating / load_per_slider;
+    let rated_life_km = 50.0 * load_margin.powi(3);
     let moment_load = total_load * offset_m;
     let mut risks = common::safety_risk(safety_factor, &source);
-    if static_margin < 2.0 {
+    if load_margin < 2.0 {
         risks.push(common::risk(
             "warning",
             "导轨载荷余量低于 2，需上调规格或增加滑块。",
             Some("dynamicLoadRating"),
+            &source,
+        ));
+    }
+    if required_travel_life > 0.0 && rated_life_km < required_travel_life {
+        risks.push(common::risk(
+            "warning",
+            "额定寿命低于目标行走寿命，需提高导轨规格、增加滑块或降低冲击系数。",
+            Some("requiredTravelLife"),
             &source,
         ));
     }
@@ -98,14 +118,16 @@ pub fn calculate(request: &CalculationRequest) -> Result<CalculationResult, Fiel
         request,
         "linear-guide-sizing@0.1.0",
         format!(
-            "单滑块载荷 {} N，载荷余量 {}",
+            "单滑块载荷 {} N，载荷余量 {}，额定寿命约 {} km",
             common::fmt(load_per_slider),
-            common::fmt(static_margin)
+            common::fmt(load_margin),
+            common::fmt(rated_life_km)
         ),
         format!(
-            "按 {} 个滑块承载，建议样册动额定载荷至少覆盖 {} N/滑块。",
+            "按 {} 个滑块承载，建议样册动额定载荷至少覆盖 {} N/滑块；估算额定寿命 {} km。",
             common::fmt(sliders),
-            common::fmt(load_per_slider)
+            common::fmt(load_per_slider),
+            common::fmt(rated_life_km)
         ),
         vec![
             common::step(
@@ -133,8 +155,16 @@ pub fn calculate(request: &CalculationRequest) -> Result<CalculationResult, Fiel
                 "载荷余量",
                 "S = C / Fb",
                 format!("{} / {}", common::fmt(rating), common::fmt(load_per_slider)),
-                static_margin,
+                load_margin,
                 "ratio",
+                &source,
+            ),
+            common::step(
+                "额定寿命",
+                "L = 50 * (C / P)^3",
+                format!("50 * {}^3", common::fmt(load_margin)),
+                rated_life_km,
+                "km",
                 &source,
             ),
             common::step(
@@ -150,8 +180,14 @@ pub fn calculate(request: &CalculationRequest) -> Result<CalculationResult, Fiel
             "linear-guide-blocks",
             "滑块数量",
             "余量不足时优先增加滑块或改用更高规格导轨，并复核力矩方向。".to_string(),
-            format!("载荷余量 {}", common::fmt(static_margin)),
-            if static_margin >= 2.0 {
+            format!(
+                "载荷余量 {}，额定寿命 {} km",
+                common::fmt(load_margin),
+                common::fmt(rated_life_km)
+            ),
+            if load_margin >= 2.0
+                && (required_travel_life <= 0.0 || rated_life_km >= required_travel_life)
+            {
                 "low"
             } else {
                 "warning"
@@ -161,7 +197,8 @@ pub fn calculate(request: &CalculationRequest) -> Result<CalculationResult, Fiel
         risks,
         vec![
             common::requirement("loadPerSlider", "单滑块载荷", load_per_slider, "N"),
-            common::requirement("staticMargin", "载荷余量", static_margin, "ratio"),
+            common::requirement("staticMargin", "载荷余量", load_margin, "ratio"),
+            common::requirement("ratedLife", "额定寿命", rated_life_km, "km"),
             common::requirement("momentLoad", "偏载力矩", moment_load, "Nm"),
         ],
     ))
