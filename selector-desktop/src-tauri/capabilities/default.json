@@ -3,5 +3,5 @@
   "identifier": "default",
   "description": "Default capability for the selector desktop window",
   "windows": ["main"],
-  "permissions": ["core:default", "fs:default", "sql:default"]
+  "permissions": ["core:default", "fs:default", "sql:default", "dialog:allow-open"]
 }

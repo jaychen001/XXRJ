@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { invoke } from "@tauri-apps/api/core";
+import { open } from "@tauri-apps/plugin-dialog";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { setupAppInvokeMock } from "./app-test-fixtures";
 import { App } from "./App";
@@ -9,12 +10,18 @@ vi.mock("@tauri-apps/api/core", () => ({
   invoke: vi.fn(),
 }));
 
+vi.mock("@tauri-apps/plugin-dialog", () => ({
+  open: vi.fn(),
+}));
+
 const invokeMock = vi.mocked(invoke);
+const openMock = vi.mocked(open);
 
 describe("厂家样本能力的用户可见边界", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     setupAppInvokeMock(invokeMock);
+    openMock.mockResolvedValue("D:\\samples\\servo.csv");
   });
 
   it("主界面不暴露独立厂家样本库，结果页可导入样本并匹配型号", async () => {
@@ -30,8 +37,18 @@ describe("厂家样本能力的用户可见边界", () => {
     expect(await screen.findByText("摩擦力")).toBeInTheDocument();
     expect(screen.queryByText("厂家型号推荐")).not.toBeInTheDocument();
 
-    await user.type(screen.getByLabelText("样本文件路径"), "D:\\samples\\servo.csv");
-    await user.selectOptions(screen.getByLabelText("样本文件格式"), "csv");
+    await user.click(screen.getByRole("button", { name: "选择文件" }));
+    expect(openMock).toHaveBeenCalledWith({
+      multiple: false,
+      filters: [
+        {
+          name: "厂家样本",
+          extensions: ["pdf", "csv", "tsv", "xlsx", "xls", "xlsm"],
+        },
+      ],
+    });
+    expect(screen.getByLabelText("样本文件路径")).toHaveValue("D:\\samples\\servo.csv");
+    expect(screen.getByLabelText("样本文件格式")).toHaveValue("csv");
     await user.click(screen.getByRole("button", { name: "读取预览" }));
 
     expect(await screen.findByText("识别到 2 个型号，失败 0 行。")).toBeInTheDocument();

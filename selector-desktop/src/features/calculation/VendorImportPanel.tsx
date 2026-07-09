@@ -1,27 +1,15 @@
 import { useEffect, useState } from "react";
-import { CheckCircle2, FileSpreadsheet, Upload } from "lucide-react";
+import { open } from "@tauri-apps/plugin-dialog";
+import { CheckCircle2, FileSpreadsheet, FolderOpen, Upload } from "lucide-react";
 import type { CalculationResult } from "../../domain/calculation";
 import type { FieldMapping, VendorImportPreview } from "../../domain/vendor";
 import { confirmVendorImport, previewVendorImport } from "../../shared/api/vendor";
-
-const FIELD_OPTIONS = [
-  ["modelName", "型号"],
-  ["brand", "品牌"],
-  ["series", "系列"],
-  ["outputTorque", "扭矩/力矩"],
-  ["requiredSpeed", "转速"],
-  ["power", "功率"],
-  ["load", "推力/载荷"],
-  ["bore", "缸径/直径"],
-  ["stroke", "行程"],
-  ["flowRate", "流量"],
-  ["vacuumPressure", "真空压力"],
-  ["dynamicLoadRating", "动额定载荷"],
-  ["staticLoadRating", "静额定载荷"],
-  ["allowableMoment", "允许力矩"],
-  ["kineticEnergy", "允许动能"],
-  ["ratedLife", "寿命"],
-] as const;
+import {
+  formatFromPath,
+  inferVendorComponentType,
+  optionsFor,
+  replaceMapping,
+} from "./vendor-import-options";
 
 interface VendorImportPanelProps {
   result: CalculationResult;
@@ -32,7 +20,7 @@ export function VendorImportPanel({ result, onImported }: VendorImportPanelProps
   const [sourceFile, setSourceFile] = useState("");
   const [sourceFormat, setSourceFormat] = useState("");
   const [libraryName, setLibraryName] = useState(`${result.moduleName}样本库`);
-  const [componentType, setComponentType] = useState(inferComponentType(result));
+  const [componentType, setComponentType] = useState(inferVendorComponentType(result));
   const [versionName, setVersionName] = useState("v1");
   const [preview, setPreview] = useState<VendorImportPreview | null>(null);
   const [mappings, setMappings] = useState<FieldMapping[]>([]);
@@ -42,12 +30,39 @@ export function VendorImportPanel({ result, onImported }: VendorImportPanelProps
 
   useEffect(() => {
     setLibraryName(`${result.moduleName}样本库`);
-    setComponentType(inferComponentType(result));
+    setComponentType(inferVendorComponentType(result));
     setPreview(null);
     setMappings([]);
     setConfirmed(false);
     setStatus("输入本地样本路径，读取预览后确认入库。");
   }, [result.moduleId, result.moduleName]);
+
+  async function handleSelectFile() {
+    setIsBusy(true);
+    setStatus("正在打开文件选择窗口");
+    try {
+      const selected = await open({
+        multiple: false,
+        filters: [
+          {
+            name: "厂家样本",
+            extensions: ["pdf", "csv", "tsv", "xlsx", "xls", "xlsm"],
+          },
+        ],
+      });
+      if (typeof selected !== "string") {
+        setStatus("未选择样本文件。");
+        return;
+      }
+      setSourceFile(selected);
+      setSourceFormat(formatFromPath(selected));
+      setStatus("已选择样本文件，可读取预览。");
+    } catch (error: unknown) {
+      setStatus(error instanceof Error ? error.message : String(error));
+    } finally {
+      setIsBusy(false);
+    }
+  }
 
   async function handlePreview() {
     if (!sourceFile.trim()) {
@@ -137,6 +152,8 @@ export function VendorImportPanel({ result, onImported }: VendorImportPanelProps
             <option value="csv">CSV</option>
             <option value="tsv">TSV</option>
             <option value="xlsx">Excel</option>
+            <option value="xls">Excel 97-2003</option>
+            <option value="xlsm">Excel 含宏</option>
           </select>
         </label>
         <label>
@@ -156,6 +173,16 @@ export function VendorImportPanel({ result, onImported }: VendorImportPanelProps
           />
         </label>
       </div>
+
+      <button
+        className="vendor-inline-button"
+        type="button"
+        disabled={isBusy}
+        onClick={() => void handleSelectFile()}
+      >
+        <FolderOpen size={15} aria-hidden="true" />
+        选择文件
+      </button>
 
       <button className="vendor-inline-button" type="button" disabled={isBusy} onClick={() => void handlePreview()}>
         <Upload size={15} aria-hidden="true" />
@@ -245,45 +272,4 @@ function MappingEditor({
       ))}
     </div>
   );
-}
-
-function replaceMapping(
-  mappings: FieldMapping[],
-  index: number,
-  key: keyof FieldMapping,
-  value: string,
-): FieldMapping[] {
-  return mappings.map((mapping, currentIndex) =>
-    currentIndex === index ? { ...mapping, [key]: value } : mapping,
-  );
-}
-
-function optionsFor(value: string): Array<[string, string]> {
-  const options = FIELD_OPTIONS.map(([optionValue, label]) => [optionValue, label] as [string, string]);
-  return options.some(([option]) => option === value) ? options : [[value, value], ...options];
-}
-
-function inferComponentType(result: CalculationResult): string {
-  if (result.moduleId.includes("timing-belt")) return "同步轮同步带";
-  if (result.moduleId.includes("v-belt")) return "V 带";
-  if (result.moduleId.includes("chain")) return "链条";
-  if (result.moduleId.includes("gear")) return "齿轮";
-  if (result.moduleId.includes("reducer")) return "减速机";
-  if (result.moduleId.includes("linear-module")) return "直线模组";
-  if (result.moduleId.includes("ball-screw")) return "滚珠丝杠";
-  if (result.moduleId.includes("linear-bearing")) return "直线轴承";
-  if (result.moduleId.includes("linear-guide")) return "直线导轨";
-  if (result.moduleId.includes("rolling-bearing")) return "滚动轴承";
-  if (result.moduleId.includes("coupling")) return "联轴器";
-  if (result.moduleId.includes("brake-clutch")) return "制动器/离合器";
-  if (result.moduleId.includes("indexer")) return "分割器";
-  if (result.moduleId.includes("rotary-actuator")) return "旋转气缸";
-  if (result.moduleId.includes("slide-table")) return "滑台气缸";
-  if (result.moduleId.includes("gripper")) return "手指气缸";
-  if (result.moduleId.includes("cylinder")) return "气缸";
-  if (result.moduleId.includes("vacuum")) return "真空";
-  if (result.moduleId.includes("flow-control")) return "电磁阀";
-  if (result.moduleId.includes("servo") || result.moduleId.includes("stepper")) return "伺服/步进电机";
-  if (result.moduleId.includes("motor")) return "普通电机";
-  return result.moduleName;
 }
