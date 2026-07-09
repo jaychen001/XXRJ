@@ -1,4 +1,8 @@
 import type { CalculationResult, ModuleDefinition } from "../domain/calculation";
+import {
+  pneumaticActuatorModules,
+  pneumaticActuatorResultForModule,
+} from "./app-pneumatic-actuator-test-data";
 
 export const pneumaticSupportModules: ModuleDefinition[] = [
   implementedModule("pneumatic-cylinder-sizing", "气缸", "气动", "气动执行元件", "气缸输出力、负载率和缸径初筛", [
@@ -9,21 +13,7 @@ export const pneumaticSupportModules: ModuleDefinition[] = [
     field("loadRateLimit", "负载率上限", "ratio", 0.5, "PDF P69 / 文档页 66 / 气动执行元件"),
     field("mechanicalEfficiency", "机械效率", "ratio", 0.9, "PDF P69 / 文档页 66 / 气动执行元件"),
   ]),
-  implementedModule("pneumatic-gripper-sizing", "手指气缸", "气动", "气动执行元件", "夹持力和夹持力矩", [
-    field("partMass", "工件质量", "kg", 1, "PDF P76 / 文档页 73 / 手指气缸"),
-    field("frictionCoefficient", "夹持摩擦系数", "ratio", 0.3, "PDF P76 / 文档页 73 / 手指气缸"),
-    field("jawCount", "夹爪数量", "pcs", 2, "PDF P76 / 文档页 73 / 手指气缸"),
-    field("jawArm", "夹持力臂", "mm", 30, "PDF P76 / 文档页 73 / 手指气缸", ["mm", "m"]),
-    field("acceleration", "搬运加速度", "m/s²", 2, "PDF P76 / 文档页 73 / 手指气缸"),
-  ]),
-  implementedModule("pneumatic-slide-table-sizing", "滑台气缸", "气动", "气动执行元件", "滑台推力、平均速度和缓冲复核", [
-    field("loadMass", "负载质量", "kg", 5, "PDF P80 / 文档页 77 / 滑台气缸"),
-    field("guideFriction", "导向摩擦系数", "ratio", 0.15, "PDF P80 / 文档页 77 / 滑台气缸"),
-    field("acceleration", "加速度", "m/s²", 2, "PDF P80 / 文档页 77 / 滑台气缸"),
-    field("stroke", "行程", "mm", 100, "PDF P80 / 文档页 77 / 滑台气缸", ["mm", "m"]),
-    field("moveTime", "移动时间", "s", 0.5, "PDF P80 / 文档页 77 / 滑台气缸", ["s", "min"]),
-    field("loadRateLimit", "负载率上限", "ratio", 0.5, "PDF P80 / 文档页 77 / 滑台气缸"),
-  ]),
+  ...pneumaticActuatorModules,
   implementedModule("vacuum-suction-sizing", "真空吸附", "气动", "气动执行元件", "吸附力、吸盘面积和直径", [
     field("workpieceMass", "工件质量", "kg", 2, "PDF P98 / 文档页 95 / 真空吸附"),
     field("acceleration", "搬运加速度", "m/s²", 2, "PDF P98 / 文档页 95 / 真空吸附"),
@@ -87,7 +77,10 @@ export const pneumaticSupportModules: ModuleDefinition[] = [
 ];
 
 export function pneumaticSupportResultForModule(moduleId: string): CalculationResult | null {
-  return moduleId === "pneumatic-cylinder-sizing" ? cylinderResult : null;
+  if (moduleId === "pneumatic-cylinder-sizing") {
+    return cylinderResult;
+  }
+  return pneumaticActuatorResultForModule(moduleId);
 }
 
 const cylinderResult = {

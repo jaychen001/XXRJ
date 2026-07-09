@@ -23,6 +23,10 @@
 | 滚珠丝杠 | THK - Example Ball Screw Selections: https://tech.thk.com/en/products/pdf/en_b15_069.pdf | 选型样例、寿命、行程寿命和临界转速计算样式 |
 | 气缸 | SMC - Air Cylinders Model Selection: https://www.smcworld.com/catalog/BEST-technical-data-en/pdf/6-2-1-m21-43-tech_en.pdf | 缸径选择、理论输出力、负载率和速度相关选型 |
 | 气缸 | SMC - Theoretical Output Table: https://www.smcworld.com/assets/select_guide/en-jp/actuator/pdf/riron-e.pdf | 不同缸径、杆径、压力下的理论输出力核对 |
+| 手指气缸 | SMC - Angular Type Air Gripper MHC2/MHCA2/MHCM2: https://www.smcworld.com/catalog/en/rotary_airchuck/MHC2-S-E/6-3-p0657-0674-mhc-s_en/data/6-3-p0657-0674-mhc-s_en.pdf | 夹持力、有效夹持力、夹持点和摩擦夹持条件 |
+| 滑台气缸 | SMC - Air Slide Table Series MXS: https://www.smcworld.com/catalog/BEST-old-en/mpv/mxs_en/data/mxs_en.pdf | 滑台负载动能、允许动能和缓冲校核 |
+| 旋转气缸 | SMC - Rotary Actuators Model Selection: https://www.smcworld.com/catalog/SMC-HP-PDF/ro_actuator_select-en.pdf | 转动惯量、需求扭矩和旋转动能选型 |
+| 旋转气缸 | SMC - Rotary Actuator Model Selection MSQ: https://www.smcworld.com/catalog/BEST-technical-data-en/pdf/Rotary-Selection-MSQ_en.pdf | 旋转负载惯量、所需扭矩、动能和外部缓冲判断 |
 | 气动控制/电磁阀 | SMC - Air Cylinders Model Selection Data 2: https://www.smcworld.com/catalog/BEST-technical-data-en/pdf/6-2-1-m21-43-tech_en.pdf | 气缸耗气量、管路耗气量、每分钟所需空气量 |
 | 同步带/V 带 | Gates - Light Power and Precision Drive Design Manual: https://www.gates.com/content/dam/documents-library/catalogs/light-power-and-precision-manual.pdf | 同步带、精密传动、带轮和功率选型流程 |
 | V 带 | Gates - Heavy Duty V-Belt Drive Design Manual: https://www.gates.com/content/dam/documents-library/catalogs/heavy-duty-vbelt-drive-design-manual-en.pdf | V 带功率、工况系数和传动设计校核 |
@@ -58,6 +62,9 @@
 | 齿轮 | 传递扭矩、主动齿轮转速、工况系数、许用齿根应力 | 齿面切向力、弯曲应力指标、齿根应力余量和节线速度 |
 | 减速机 | 工况系数、候选额定输出扭矩、输出轴径向/轴向载荷、允许输入转速 | 减速比、设计输出扭矩、输入扭矩、输出功率、扭矩余量和轴载余量 |
 | 直线模组 | 外部阻力、垂直负载系数、驱动效率、候选额定推力、导向载荷系数、动/静额定载荷、目标行走寿命、候选重复定位精度 | 推力需求、推力余量、导向设计载荷、额定寿命、所需动额定载荷、静载余量和精度余量 |
+| 手指气缸 | 工件质量、夹持摩擦系数、夹爪数量、夹持力臂、搬运加速度、姿态重力系数、外部扰动力、候选单爪夹持力、候选允许手指力矩 | 单爪夹持力、总夹持力、夹持力矩、夹持力余量和手指力矩余量 |
+| 滑台气缸 | 负载质量、导向摩擦系数、加速度、行程、移动时间、负载率上限、外部阻力、垂直负载系数、候选额定推力、负载偏心距、候选允许力矩、候选允许动能 | 推力需求、平均速度、负载动能、偏载力矩、推力余量、力矩余量和动能余量 |
+| 旋转气缸 | 负载惯量、旋转角度、旋转时间、外部阻力矩、扭矩负载率上限、候选额定扭矩、候选允许动能 | 峰值角速度、角加速度、需求扭矩、负载动能、扭矩余量、动能余量和最小旋转时间 |
 
 ### 伺服电机 / 步进电机
 
@@ -104,6 +111,80 @@
 - 建议缸径
 - 速度/缓冲风险
 - 垂直负载风险
+
+### 手指气缸
+
+设计师通常已知：
+
+- 工件质量
+- 夹持方式和夹爪数量
+- 夹爪与工件的摩擦系数
+- 夹持点到手指根部的距离
+- 搬运加速度和工件姿态
+- 外部扰动力
+- 候选手指气缸的单爪有效夹持力
+- 候选手指允许力矩
+- 安全系数
+
+输出：
+
+- 夹持负载
+- 单爪夹持力
+- 总夹持力
+- 夹持力矩
+- 夹持力余量
+- 手指力矩余量
+- 摩擦不足和力矩超限风险
+
+### 滑台气缸
+
+设计师通常已知：
+
+- 负载质量
+- 行程和移动时间
+- 导向摩擦系数
+- 加速度
+- 外部阻力
+- 安装方向或垂直负载系数
+- 负载重心偏心距
+- 候选滑台额定推力、允许力矩和允许动能
+- 安全系数
+
+输出：
+
+- 导向摩擦力
+- 加速力
+- 推力需求
+- 平均速度
+- 负载动能
+- 偏载力矩
+- 推力、力矩和动能余量
+- 缓冲、偏载和垂直负载风险
+
+### 旋转气缸
+
+设计师通常已知：
+
+- 负载折算到旋转轴的转动惯量
+- 旋转角度
+- 旋转时间
+- 外部阻力矩
+- 候选旋转气缸额定扭矩
+- 候选旋转气缸允许动能
+- 扭矩负载率上限
+- 安全系数
+
+输出：
+
+- 峰值角速度
+- 角加速度
+- 惯量扭矩
+- 需求扭矩
+- 旋转负载动能
+- 扭矩余量
+- 动能余量
+- 按允许动能反推的最小旋转时间
+- 外部缓冲或降低速度风险
 
 ### 真空吸附
 
@@ -474,5 +555,4 @@
 
 ## 4. 下一步公式补强顺序
 
-1. 手指气缸 / 滑台气缸
-2. 机器人、拖链、传感器、材料、机加工等规则型模块
+1. 机器人、拖链、传感器、材料、机加工等规则型模块

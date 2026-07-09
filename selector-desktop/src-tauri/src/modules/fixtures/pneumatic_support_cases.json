@@ -28,10 +28,14 @@
       { "id": "frictionCoefficient", "value": 0.3, "unit": "ratio" },
       { "id": "jawCount", "value": 2.0, "unit": "pcs" },
       { "id": "jawArm", "value": 30.0, "unit": "mm" },
-      { "id": "acceleration", "value": 2.0, "unit": "m/s²" }
+      { "id": "acceleration", "value": 2.0, "unit": "m/s²" },
+      { "id": "orientationFactor", "value": 1.0, "unit": "ratio" },
+      { "id": "externalForce", "value": 0.0, "unit": "N" },
+      { "id": "candidateGripForce", "value": 80.0, "unit": "N" },
+      { "id": "allowableFingerMoment", "value": 3.0, "unit": "Nm" }
     ],
-    "expectedStepLabels": ["总夹持力", "单爪夹持力", "夹持力矩"],
-    "expectedRequirementIds": ["holdingForce", "forcePerJaw", "gripTorque"]
+    "expectedStepLabels": ["夹持负载", "单爪夹持力", "总夹持力", "夹持力矩", "夹持力余量", "手指力矩余量"],
+    "expectedRequirementIds": ["holdingForce", "forcePerJaw", "gripTorque", "forceMargin", "momentMargin"]
   },
   {
     "name": "滑台气缸推力例题",
@@ -44,10 +48,33 @@
       { "id": "acceleration", "value": 2.0, "unit": "m/s²" },
       { "id": "stroke", "value": 100.0, "unit": "mm" },
       { "id": "moveTime", "value": 0.5, "unit": "s" },
-      { "id": "loadRateLimit", "value": 0.5, "unit": "ratio" }
+      { "id": "loadRateLimit", "value": 0.5, "unit": "ratio" },
+      { "id": "externalForce", "value": 0.0, "unit": "N" },
+      { "id": "verticalLoadFactor", "value": 0.0, "unit": "ratio" },
+      { "id": "candidateRatedThrust", "value": 300.0, "unit": "N" },
+      { "id": "loadCenterOffset", "value": 40.0, "unit": "mm" },
+      { "id": "allowableMoment", "value": 8.0, "unit": "Nm" },
+      { "id": "allowableKineticEnergy", "value": 0.5, "unit": "J" }
     ],
-    "expectedStepLabels": ["导向摩擦力", "加速力", "推力需求", "平均速度"],
-    "expectedRequirementIds": ["requiredThrust", "averageSpeed"]
+    "expectedStepLabels": ["导向摩擦力", "加速力", "垂直负载力", "推力需求", "平均速度", "负载动能", "偏载力矩", "推力余量"],
+    "expectedRequirementIds": ["requiredThrust", "averageSpeed", "kineticEnergy", "loadMoment", "thrustMargin", "momentMargin", "energyMargin"]
+  },
+  {
+    "name": "旋转气缸扭矩例题",
+    "moduleId": "pneumatic-rotary-actuator-sizing",
+    "safetyFactor": 1.5,
+    "safetyFactorConfirmed": true,
+    "fields": [
+      { "id": "loadInertia", "value": 0.01, "unit": "kg·m²" },
+      { "id": "rotationAngle", "value": 90.0, "unit": "deg" },
+      { "id": "rotationTime", "value": 0.5, "unit": "s" },
+      { "id": "externalTorque", "value": 0.5, "unit": "Nm" },
+      { "id": "torqueLoadRate", "value": 0.5, "unit": "ratio" },
+      { "id": "candidateTorque", "value": 5.0, "unit": "Nm" },
+      { "id": "allowableKineticEnergy", "value": 0.2, "unit": "J" }
+    ],
+    "expectedStepLabels": ["峰值角速度", "角加速度", "惯量扭矩", "需求扭矩", "负载动能", "扭矩余量", "动能余量", "最小旋转时间"],
+    "expectedRequirementIds": ["requiredTorque", "kineticEnergy", "torqueMargin", "energyMargin", "minimumRotationTime"]
   },
   {
     "name": "真空吸附例题",
