@@ -48,6 +48,13 @@ fn csv_preview_requires_confirmed_mapping_before_import_and_recommendation() {
     };
     assert!(validate_confirm_request(&request).is_err());
     request.confirmed = true;
+    if let Some(mapping) = request
+        .mappings
+        .iter_mut()
+        .find(|mapping| mapping.source_field == "额定扭矩(Nm)")
+    {
+        mapping.target_field = "ratedTorque".to_string();
+    }
     validate_confirm_request(&request).expect("confirmed mapping");
 
     let connection = Connection::open_in_memory().expect("database");
@@ -68,6 +75,8 @@ fn csv_preview_requires_confirmed_mapping_before_import_and_recommendation() {
         .expect("library");
     let models = build_models(&request, &library_id);
     assert_eq!(models.len(), 2);
+    assert!(models[0].normalized_parameters.contains_key("ratedTorque"));
+    assert!(!models[0].normalized_parameters.contains_key("outputTorque"));
     repository.insert_models(&models).expect("models");
 
     let listed_models = repository

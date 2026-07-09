@@ -3,6 +3,8 @@ import { AlertTriangle, CheckCircle2, RefreshCw, SlidersHorizontal } from "lucid
 import type { CalculationResult } from "../../domain/calculation";
 import type { MatchRuleResult, RecommendationCandidate } from "../../domain/vendor";
 import { recommendVendorModels } from "../../shared/api/vendor";
+import { VendorImportPanel } from "./VendorImportPanel";
+import { VendorLibraryPanel } from "./VendorLibraryPanel";
 import "./recommendation-panel.css";
 
 type MatchStatus = "idle" | "loading" | "success" | "empty" | "error";
@@ -24,11 +26,24 @@ export function RecommendationPanel({
 }: RecommendationPanelProps) {
   const [status, setStatus] = useState<MatchStatus>("idle");
   const [message, setMessage] = useState("使用已启用样本库按计算结果匹配候选型号。");
+  const [libraryRefreshKey, setLibraryRefreshKey] = useState(0);
 
   useEffect(() => {
     setStatus("idle");
     setMessage("使用已启用样本库按计算结果匹配候选型号。");
   }, [result.moduleId, result.formulaVersion, result.summary]);
+
+  function resetRecommendations() {
+    onCandidatesChange([]);
+    onSelectedModelNameChange(null);
+    setStatus("idle");
+    setMessage("样本库已更新，请重新匹配型号。");
+  }
+
+  function handleImported() {
+    setLibraryRefreshKey((current) => current + 1);
+    resetRecommendations();
+  }
 
   async function handleRecommend() {
     setStatus("loading");
@@ -85,6 +100,9 @@ export function RecommendationPanel({
       <span className={`recommendation-panel__status recommendation-panel__status--${status}`} role="status">
         {message}
       </span>
+
+      <VendorImportPanel result={result} onImported={handleImported} />
+      <VendorLibraryPanel refreshKey={libraryRefreshKey} onChanged={resetRecommendations} />
 
       {candidates.length > 0 ? (
         <div className="recommendation-panel__list">

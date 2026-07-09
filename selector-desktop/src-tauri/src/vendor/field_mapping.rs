@@ -1,7 +1,7 @@
 use std::collections::{HashMap, HashSet};
 
 use super::models::{
-    ConfirmVendorImportRequest, NewVendorModel, NormalizedParameter, VendorParameter,
+    ConfirmVendorImportRequest, FieldMapping, NewVendorModel, NormalizedParameter, VendorParameter,
 };
 use super::repository::next_id;
 
@@ -13,6 +13,11 @@ pub fn build_models(request: &ConfirmVendorImportRequest, library_id: &str) -> V
         .iter()
         .map(|mapping| mapping.source_field.as_str())
         .collect::<HashSet<_>>();
+    let mapping_by_source = request
+        .mappings
+        .iter()
+        .map(|mapping| (mapping.source_field.as_str(), mapping))
+        .collect::<HashMap<_, _>>();
 
     request
         .preview
@@ -24,7 +29,7 @@ pub fn build_models(request: &ConfirmVendorImportRequest, library_id: &str) -> V
                 .parameters
                 .iter()
                 .filter(|parameter| accepted_sources.contains(parameter.source_field.as_str()))
-                .cloned()
+                .filter_map(|parameter| apply_mapping(parameter, &mapping_by_source))
                 .collect::<Vec<_>>();
             if parameters.is_empty() {
                 return None;
@@ -42,6 +47,29 @@ pub fn build_models(request: &ConfirmVendorImportRequest, library_id: &str) -> V
             })
         })
         .collect()
+}
+
+fn apply_mapping(
+    parameter: &VendorParameter,
+    mapping_by_source: &HashMap<&str, &FieldMapping>,
+) -> Option<VendorParameter> {
+    let mapping = mapping_by_source.get(parameter.source_field.as_str())?;
+    if RESERVED_FIELDS.contains(&mapping.target_field.as_str()) {
+        return None;
+    }
+    let field = mapping.target_field.trim();
+    if field.is_empty() {
+        return None;
+    }
+    let mut mapped = parameter.clone();
+    mapped.field = field.to_string();
+    mapped.label = label_for_field(field);
+    if let Some(unit) = &mapping.unit {
+        if !unit.trim().is_empty() {
+            mapped.unit = unit.trim().to_string();
+        }
+    }
+    Some(mapped)
 }
 
 pub fn validate_confirm_request(request: &ConfirmVendorImportRequest) -> Result<(), String> {
