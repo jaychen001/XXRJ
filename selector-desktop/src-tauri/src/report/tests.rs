@@ -15,18 +15,14 @@ fn pdf_writer_builds_valid_pdf_bytes() {
 
 #[test]
 fn excel_writer_creates_xlsx_file() {
+    let request = test_request();
     let payload = ReportPayload {
         run_id: None,
         case_id: None,
         case_name: "测试报告".to_string(),
         notes: String::new(),
-        request: crate::engine::models::CalculationRequest {
-            module_id: "timing-belt-basic".to_string(),
-            fields: vec![],
-            safety_factor: Some(1.5),
-            safety_factor_confirmed: true,
-        },
-        result: crate::engine::calculate_request(&test_request()).expect("calculation"),
+        request: request.clone(),
+        result: crate::engine::calculate_request(&request).expect("calculation"),
         candidates: Vec::new(),
         final_model_name: None,
     };
@@ -47,6 +43,8 @@ fn test_request() -> crate::engine::models::CalculationRequest {
             input("frictionCoefficient", 0.1, "ratio"),
             input("targetSpeed", 500.0, "mm/s"),
             input("accelerationTime", 0.3, "s"),
+            input("externalForce", 0.0, "N"),
+            input("verticalLoadFactor", 0.0, "ratio"),
             input("pulleyTeeth", 20.0, "teeth"),
             input("toothPitch", 5.0, "mm"),
             input("efficiency", 0.9, "ratio"),

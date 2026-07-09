@@ -51,13 +51,15 @@
     "fields": [
       { "id": "stationCount", "value": 8.0, "unit": "station" },
       { "id": "cycleTime", "value": 2.0, "unit": "s" },
+      { "id": "indexTime", "value": 0.8, "unit": "s" },
       { "id": "indexAngle", "value": 45.0, "unit": "deg" },
+      { "id": "motionCoefficient", "value": 4.0, "unit": "ratio" },
       { "id": "tableInertia", "value": 0.05, "unit": "kg·m²" },
       { "id": "loadTorque", "value": 5.0, "unit": "Nm" },
       { "id": "efficiency", "value": 0.8, "unit": "ratio" }
     ],
-    "expectedStepLabels": ["输出转速", "角加速度", "惯量扭矩", "设计扭矩"],
-    "expectedRequirementIds": ["outputSpeed", "angularAcceleration", "designTorque"]
+    "expectedStepLabels": ["输出转速", "停歇时间", "峰值角速度", "角加速度", "惯量扭矩", "设计扭矩"],
+    "expectedRequirementIds": ["outputSpeed", "angularAcceleration", "designTorque", "peakPower"]
   },
   {
     "name": "制动器离合器例题",

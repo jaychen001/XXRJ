@@ -75,6 +75,8 @@ mod tests {
                 input("frictionCoefficient", 0.1, "ratio"),
                 input("targetSpeed", 500.0, "mm/s"),
                 input("accelerationTime", 0.3, "s"),
+                input("externalForce", 0.0, "N"),
+                input("verticalLoadFactor", 0.0, "ratio"),
                 input("pulleyTeeth", 20.0, "teeth"),
                 input("toothPitch", 5.0, "mm"),
                 input("efficiency", 0.9, "ratio"),

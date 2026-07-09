@@ -13,7 +13,7 @@ import { ruleModules, ruleResultForModule } from "./app-rule-test-data";
 export const calculationResult = {
   moduleId: "timing-belt-basic",
   moduleName: "同步带基础计算",
-  formulaVersion: "timing-belt-basic@0.1.0",
+  formulaVersion: "timing-belt-basic@0.2.0",
   summary: "输出扭矩 0.351 Nm，需求转速 300.000 rpm",
   conclusion: "按安全系数 1.500 计算，驱动端至少需要 0.351 Nm、300.000 rpm。",
   steps: [
@@ -27,8 +27,10 @@ export const calculationResult = {
   ],
   risks: [risk("success", "未发现基础速度、效率或安全系数风险。", null, "PDF P34 / 文档页 31 / 同步带")],
   requirements: [
+    { id: "beltForce", label: "等效推力", value: 22.061, unit: "N" },
     { id: "outputTorque", label: "输出扭矩", value: 0.351, unit: "Nm" },
     { id: "requiredSpeed", label: "需求转速", value: 300, unit: "rpm" },
+    { id: "power", label: "估算功率", value: 11.031, unit: "W" },
   ],
   sourcePages: ["PDF P34 / 文档页 31 / 同步带"],
   inputSnapshot: {},
@@ -44,6 +46,8 @@ export const calculationRequest = {
     { id: "frictionCoefficient", value: 0.1, unit: "ratio" },
     { id: "targetSpeed", value: 500, unit: "mm/s" },
     { id: "accelerationTime", value: 0.3, unit: "s" },
+    { id: "externalForce", value: 0, unit: "N" },
+    { id: "verticalLoadFactor", value: 0, unit: "ratio" },
     { id: "pulleyTeeth", value: 20, unit: "teeth" },
     { id: "toothPitch", value: 5, unit: "mm" },
     { id: "efficiency", value: 0.9, unit: "ratio" },
@@ -58,6 +62,8 @@ export const calculationModules: ModuleDefinition[] = [
     field("frictionCoefficient", "摩擦系数", "ratio", 0.1, "PDF P34 / 文档页 31 / 同步带"),
     field("targetSpeed", "目标速度", "mm/s", 500, "PDF P34 / 文档页 31 / 同步带", ["mm/s", "m/s"]),
     field("accelerationTime", "加速时间", "s", 0.3, "PDF P34 / 文档页 31 / 同步带", ["s", "min"]),
+    field("externalForce", "外部阻力", "N", 0, "工程公式库 / 同步带"),
+    field("verticalLoadFactor", "垂直负载系数", "ratio", 0, "工程公式库 / 同步带"),
     field("pulleyTeeth", "同步轮齿数", "teeth", 20, "PDF P34 / 文档页 31 / 同步带"),
     field("toothPitch", "齿距", "mm", 5, "PDF P34 / 文档页 31 / 同步带", ["mm", "m"]),
     field("efficiency", "传动效率", "ratio", 0.9, "PDF P34 / 文档页 31 / 同步带"),
@@ -89,7 +95,10 @@ export const calculationModules: ModuleDefinition[] = [
     field("loadMass", "负载质量", "kg", 20, "PDF P4 / 文档页 1 / 电机篇"),
     field("driveDiameter", "驱动直径", "mm", 80, "PDF P4 / 文档页 1 / 电机篇", ["mm", "m"]),
     field("lineSpeed", "线速度", "mm/s", 300, "PDF P4 / 文档页 1 / 电机篇", ["mm/s", "m/s"]),
+    field("accelerationTime", "启动加速时间", "s", 1, "工程公式库 / 普通与调速电机", ["s", "min"]),
     field("frictionCoefficient", "摩擦系数", "ratio", 0.15, "PDF P4 / 文档页 1 / 电机篇"),
+    field("externalForce", "外部阻力", "N", 0, "工程公式库 / 普通与调速电机"),
+    field("verticalLoadFactor", "垂直负载系数", "ratio", 0, "工程公式库 / 普通与调速电机"),
     field("efficiency", "传动效率", "ratio", 0.85, "PDF P4 / 文档页 1 / 电机篇"),
   ]),
   implementedModule("servo-stepper-sizing", "伺服/步进选型计算", "驱动", "电机篇", "转速、力矩、惯量比和分辨率复核", [

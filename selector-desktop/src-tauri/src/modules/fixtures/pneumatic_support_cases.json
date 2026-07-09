@@ -71,14 +71,19 @@
     "safetyFactor": 1.3,
     "safetyFactorConfirmed": true,
     "fields": [
+      { "id": "cylinderCount", "value": 1.0, "unit": "pcs" },
       { "id": "cylinderBore", "value": 32.0, "unit": "mm" },
+      { "id": "rodDiameter", "value": 12.0, "unit": "mm" },
       { "id": "stroke", "value": 100.0, "unit": "mm" },
+      { "id": "tubeInnerDiameter", "value": 6.0, "unit": "mm" },
+      { "id": "tubeLength", "value": 1000.0, "unit": "mm" },
       { "id": "cycleTime", "value": 2.0, "unit": "s" },
       { "id": "workingPressure", "value": 0.5, "unit": "MPa" },
-      { "id": "actuationFrequency", "value": 20.0, "unit": "cycle/min" }
+      { "id": "actuationFrequency", "value": 20.0, "unit": "cycle/min" },
+      { "id": "valveRatedFlow", "value": 200.0, "unit": "L/min" }
     ],
-    "expectedStepLabels": ["单腔容积", "单循环耗气", "流量需求"],
-    "expectedRequirementIds": ["airPerCycle", "flowRate"]
+    "expectedStepLabels": ["单腔容积", "回程腔容积", "管路容积", "单循环耗气", "流量需求", "阀流量余量"],
+    "expectedRequirementIds": ["airPerCycle", "flowRate", "continuousFlow", "valveMargin"]
   },
   {
     "name": "直线导轨例题",

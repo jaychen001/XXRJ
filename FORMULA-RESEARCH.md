@@ -22,8 +22,11 @@
 | 滚珠丝杠 | THK - Example Ball Screw Selections: https://tech.thk.com/en/products/pdf/en_b15_069.pdf | 选型样例、寿命、行程寿命和临界转速计算样式 |
 | 气缸 | SMC - Air Cylinders Model Selection: https://www.smcworld.com/catalog/BEST-technical-data-en/pdf/6-2-1-m21-43-tech_en.pdf | 缸径选择、理论输出力、负载率和速度相关选型 |
 | 气缸 | SMC - Theoretical Output Table: https://www.smcworld.com/assets/select_guide/en-jp/actuator/pdf/riron-e.pdf | 不同缸径、杆径、压力下的理论输出力核对 |
+| 气动控制/电磁阀 | SMC - Air Cylinders Model Selection Data 2: https://www.smcworld.com/catalog/BEST-technical-data-en/pdf/6-2-1-m21-43-tech_en.pdf | 气缸耗气量、管路耗气量、每分钟所需空气量 |
 | 同步带/V 带 | Gates - Light Power and Precision Drive Design Manual: https://www.gates.com/content/dam/documents-library/catalogs/light-power-and-precision-manual.pdf | 同步带、精密传动、带轮和功率选型流程 |
 | V 带 | Gates - Heavy Duty V-Belt Drive Design Manual: https://www.gates.com/content/dam/documents-library/catalogs/heavy-duty-vbelt-drive-design-manual-en.pdf | V 带功率、工况系数和传动设计校核 |
+| 凸轮分割器 | Sankyo ECO Series: https://www.sankyo-seisakusho.co.jp/english/download/pdf/catalog/sandex/c_sandex_eco_ed_eng.pdf | 分割器选型需确认输入/输出条件、负载条件，并由扭矩计算复核 |
+| 凸轮分割器 | DESTACO CAMCO Mechanical Rotary Indexers: https://www.destaco.com/rotary-positioning/indexers/mechanical-rotary-indexers | 分割器用于精确间歇定位，型号需结合工位、index time、负载和扭矩能力 |
 
 ## 3. 高频模块输入重构方向
 
@@ -36,6 +39,10 @@
 | 气缸 | 外部阻力、垂直负载系数、有效面积系数 | 输出力、缸径需求、垂直负载力 |
 | 真空吸附 | 姿态修正系数、有效吸附率 | 姿态修正后的吸附力和吸盘直径 |
 | 直线导轨 | 目标行走寿命 | 额定寿命估算和寿命风险 |
+| 同步带 | 外部阻力、垂直负载系数 | 等效推力覆盖摩擦力、加速力、垂直负载力和外部阻力 |
+| 普通电机/调速电机 | 启动加速时间、外部阻力、垂直负载系数 | 输出等效推力、启动加速力、功率、转速和调速范围风险 |
+| 电磁阀/气动控制 | 气缸数量、杆径、管路内径、管路长度、阀额定流量 | 单循环耗气、峰值流量、持续耗气量和阀流量余量 |
+| 凸轮分割器 | 分割时间、运动曲线系数 | 停歇时间、峰值角速度、角加速度、设计扭矩和峰值功率 |
 
 ### 伺服电机 / 步进电机
 
@@ -114,15 +121,19 @@
 - 齿距
 - 传动效率
 - 摩擦系数
+- 外部阻力
+- 垂直负载系数
 - 安全系数
 
 输出：
 
 - 摩擦力
 - 加速力
-- 总拉力
+- 垂直负载力
+- 等效推力
 - 输出转矩
 - 需求转速
+- 估算功率
 - 带速风险
 
 ### 滚珠丝杠
@@ -171,15 +182,85 @@
 - 力矩风险
 - 安装姿态风险
 
+### 普通电机 / 调速电机
+
+设计师通常已知：
+
+- 负载质量
+- 驱动轮或滚筒直径
+- 目标线速度
+- 启动加速时间
+- 摩擦系数
+- 外部阻力
+- 垂直负载系数
+- 传动效率
+- 安全系数
+
+输出：
+
+- 摩擦力
+- 加速力
+- 垂直负载力
+- 等效推力
+- 输出转矩
+- 需求转速
+- 需求功率
+- 调速范围风险
+
+### 电磁阀 / 气动控制
+
+设计师通常已知：
+
+- 同时动作的气缸数量
+- 气缸缸径、活塞杆直径和行程
+- 阀到气缸的管路内径和长度
+- 工作压力
+- 循环时间和动作频率
+- 候选阀额定流量
+- 安全系数
+
+输出：
+
+- 伸出腔、回程腔和管路容积
+- 单循环自由空气耗量
+- 峰值流量需求
+- 持续耗气量
+- 阀额定流量余量
+- 阀口径、管径和节拍风险
+
+### 凸轮分割器
+
+设计师通常已知：
+
+- 工位数
+- 单工位循环时间
+- 分割时间
+- 分割角度
+- 运动曲线系数
+- 转盘和工装折算惯量
+- 外部负载扭矩
+- 传动效率
+- 安全系数
+
+输出：
+
+- 输出转速
+- 停歇时间
+- 峰值角速度
+- 角加速度
+- 惯量扭矩
+- 设计扭矩
+- 峰值功率
+- 冲击和停歇余量风险
+
 ## 4. 下一步公式补强顺序
 
-1. 伺服/步进电机
-2. 气缸
-3. 真空吸附
-4. 同步带
-5. 滚珠丝杠
-6. 直线导轨
-7. 普通电机 / 调速电机
-8. 电磁阀 / 气动控制
-9. 分割器
-10. 滚动轴承、联轴器、链条、齿轮、V 带
+1. 滚动轴承
+2. 联轴器
+3. 直线轴承
+4. V 带
+5. 链条
+6. 齿轮
+7. 减速机 / 直线模组
+8. 手指气缸 / 滑台气缸
+9. 机器人、拖链、传感器、材料、机加工等规则型模块
